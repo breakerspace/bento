@@ -1,5 +1,14 @@
 # Load Balancer for Tor
 
+## Dependencies
+
+The scripts for evaluating the load balancer (not the `load_balancer.func`
+function proper) have the following Python3 dependencies:
+
+```
+sudo apt-get install python3-stem python3-pycurl python3-humanize
+```
+
 ## About: Scripts
 
 ### load_balancer.func 
