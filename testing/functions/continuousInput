@@ -1,0 +1,8 @@
+def continuousInput():
+    while True:
+        data= api.recv()
+        if data == b'stop':
+            break
+        else:
+            api.send(data)
+

@@ -1,0 +1,7 @@
+import time
+def demo():
+    y= 8
+    while y > 0:
+        api.send("hello" + str(y))
+        time.sleep(3)
+        y= y-1

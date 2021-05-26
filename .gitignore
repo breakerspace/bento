@@ -1,0 +1,8 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.out # sessions in server/sessions
+*.json # functions in server/functions
+.vscode
+

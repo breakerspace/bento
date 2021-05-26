@@ -1,0 +1,292 @@
+# Python3 manifest example
+#
+# This manifest was prepared and tested on Ubuntu 16.04/18.04 and tested with
+# Python 3.5 and 3.6.
+#
+# Python must be run with the pal_loader:
+#
+# ./pal_loader python.manifest <script>
+
+# The executable to load in Graphene. By default, PYTHONHOME points to the
+# system installation. To run Python from a local installation, specify PYTHONHOME
+# when running `make` in this directory.
+loader.exec = file:/usr/bin/python3.5
+
+# Graphene environment, including the path of the library OS and the debug
+# option (inline/none).
+loader.preload = file:/home/vanilla/sgx/graphene/Runtime/libsysdb.so
+loader.debug_type = none
+
+# Read application arguments directly from the command line. Don't use this on production!
+loader.insecure__use_cmdline_argv = 1
+
+# Environment variables for Python
+loader.env.LD_LIBRARY_PATH = /usr/lib/python3.5/lib:/lib:/lib/x86_64-linux-gnu:/usr/lib:/usr//lib/x86_64-linux-gnu
+loader.env.PATH = /usr/lib/python3.5/bin:/usr/bin:/bin
+loader.env.PYTHONHOME = /usr/lib/python3.5
+loader.env.PYTHONPATH = /usr/lib/python3.5:/usr/lib/python3.5/plat-x86_64-linux-gnu:/usr/lib/python3/dist-packages:/usr/lib/python3.5/lib-dynload
+loader.env.HOME = /home/user
+
+# Mounted FSes. The following "chroot" FSes mount a part of the host FS into the
+# guest. Other parts of the host FS will not be available in the guest.
+
+# Default glibc files, mounted from the Runtime directory in GRAPHENEDIR.
+fs.mount.lib.type = chroot
+fs.mount.lib.path = /lib
+fs.mount.lib.uri = file:/home/vanilla/sgx/graphene/Runtime
+
+# Host-level libraries (e.g., /lib/x86_64-linux-gnu) required by the Python executable
+fs.mount.lib2.type = chroot
+fs.mount.lib2.path = /lib/x86_64-linux-gnu
+fs.mount.lib2.uri = file:/lib/x86_64-linux-gnu
+
+# Host-level directory (/usr) required by the Python executable
+fs.mount.usr.type = chroot
+fs.mount.usr.path = /usr
+fs.mount.usr.uri = file:/usr
+
+# Mount $PYTHONHOME
+fs.mount.pyhome.type = chroot
+fs.mount.pyhome.path = /usr/lib/python3.5
+fs.mount.pyhome.uri = file:/usr/lib/python3.5
+
+# Mount $PYTHONDISTHOME
+fs.mount.pydisthome.type = chroot
+fs.mount.pydisthome.path = /usr/lib/python3/dist-packages
+fs.mount.pydisthome.uri = file:/usr/lib/python3/dist-packages
+
+# Mount /tmp
+fs.mount.tmp.type = chroot
+fs.mount.tmp.path = /tmp
+fs.mount.tmp.uri = file:/tmp
+
+# Mount /etc
+fs.mount.etc.type = chroot
+fs.mount.etc.path = /etc
+fs.mount.etc.uri = file:/etc
+
+# SGX general options
+
+# Set the virtual memory size of the SGX enclave. For SGX v1, the enclave
+# size must be specified during signing. If Python needs more virtual memory
+# than the enclave size, Graphene will not be able to allocate it.
+sgx.enclave_size = 1G
+
+# Set the maximum number of enclave threads. For SGX v1, the number of enclave
+# TCSes must be specified during signing, so the application cannot use more
+# threads than the number of TCSes. Note that Graphene also creates an internal
+# thread for handling inter-process communication (IPC), and potentially another
+# thread for asynchronous events. Therefore, the actual number of threads that
+# the application can create is (sgx.thread_num - 2).
+sgx.thread_num = 8
+
+# SGX trusted libraries
+
+# Glibc libraries
+sgx.trusted_files.ld = file:/home/vanilla/sgx/graphene/Runtime/ld-linux-x86-64.so.2
+sgx.trusted_files.libc = file:/home/vanilla/sgx/graphene/Runtime/libc.so.6
+sgx.trusted_files.libm = file:/home/vanilla/sgx/graphene/Runtime/libm.so.6
+sgx.trusted_files.libdl = file:/home/vanilla/sgx/graphene/Runtime/libdl.so.2
+sgx.trusted_files.librt = file:/home/vanilla/sgx/graphene/Runtime/librt.so.1
+sgx.trusted_files.libutil = file:/home/vanilla/sgx/graphene/Runtime/libutil.so.1
+sgx.trusted_files.libpthread = file:/home/vanilla/sgx/graphene/Runtime/libpthread.so.0
+sgx.trusted_files.libnssdns = file:/home/vanilla/sgx/graphene/Runtime/libnss_dns.so.2
+sgx.trusted_files.libresolve = file:/home/vanilla/sgx/graphene/Runtime/libresolv.so.2
+
+# Other libraries
+sgx.trusted_files.libexpat = file:/lib/x86_64-linux-gnu/libexpat.so.1
+sgx.trusted_files.libnssfiles = file:/lib/x86_64-linux-gnu/libnss_files.so.2
+sgx.trusted_files.libnssmdns4 = file:/lib/x86_64-linux-gnu/libnss_mdns4_minimal.so.2
+sgx.trusted_files.libaptpkg = file:/usr/lib/x86_64-linux-gnu/libapt-pkg.so.5.0
+sgx.trusted_files.libbz2 = file:/lib/x86_64-linux-gnu/libbz2.so.1.0
+sgx.trusted_files.libcrypto = file:/usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0
+sgx.trusted_files.libgcc_s = file:/lib/x86_64-linux-gnu/libgcc_s.so.1
+sgx.trusted_files.libgcrypt = file:/lib/x86_64-linux-gnu/libgcrypt.so.20
+sgx.trusted_files.libgpgerror = file:/lib/x86_64-linux-gnu/libgpg-error.so.0
+sgx.trusted_files.liblz4 = file:/usr/lib/x86_64-linux-gnu/liblz4.so.1
+sgx.trusted_files.liblzma = file:/lib/x86_64-linux-gnu/liblzma.so.5
+sgx.trusted_files.libresolv = file:/lib/x86_64-linux-gnu/libresolv.so.2
+sgx.trusted_files.libssl = file:/usr/lib/x86_64-linux-gnu/libssl.so.1.0.0
+sgx.trusted_files.libstdc = file:/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+sgx.trusted_files.libsystemd = file:/lib/x86_64-linux-gnu/libsystemd.so.0
+sgx.trusted_files.libudev = file:/lib/x86_64-linux-gnu/libudev.so.1
+sgx.trusted_files.libz = file:/lib/x86_64-linux-gnu/libz.so.1
+sgx.trusted_files.libzstd = file:/usr/lib/x86_64-linux-gnu/libzstd.so.1
+sgx.trusted_files.hashlib = file:/usr/lib/python3.5/lib-dynload/_hashlib.cpython-35m-x86_64-linux-gnu.so
+ sgx.trusted_files.ctypes = file:/usr/lib/python3.5/lib-dynload/_ctypes.cpython-35m-x86_64-linux-gnu.so
+ sgx.trusted_files.ssl = file:/usr/lib/python3.5/lib-dynload/_ssl.cpython-35m-x86_64-linux-gnu.so
+ sgx.trusted_files.bz2 = file:/usr/lib/python3.5/lib-dynload/_bz2.cpython-35m-x86_64-linux-gnu.so
+ sgx.trusted_files.lzma = file:/usr/lib/python3.5/lib-dynload/_lzma.cpython-35m-x86_64-linux-gnu.so
+ sgx.trusted_files.json = file:/usr/lib/python3.5/lib-dynload/_json.cpython-35m-x86_64-linux-gnu.so
+ sgx.trusted_files.aptpkg = file:/usr/lib/python3/dist-packages/apt_pkg.cpython-35m-x86_64-linux-gnu.so
+
+
+# Python scripts required for helloworld.py/fibonacci.py
+# NOTE: we ignore precompiled .pyc files since they are for optimization purposes only
+sgx.trusted_files.python01 = file:/usr/lib/python3.5/io.py
+sgx.trusted_files.python02 = file:/usr/lib/python3.5/encodings/__init__.py
+sgx.trusted_files.python03 = file:/usr/lib/python3.5/abc.py
+sgx.trusted_files.python04 = file:/usr/lib/python3.5/codecs.py
+sgx.trusted_files.python05 = file:/usr/lib/python3.5/_weakrefset.py
+sgx.trusted_files.python06 = file:/usr/lib/python3.5/encodings/aliases.py
+sgx.trusted_files.python07 = file:/usr/lib/python3.5/encodings/ascii.py
+sgx.trusted_files.python08 = file:/usr/lib/python3.5/encodings/utf_8.py
+sgx.trusted_files.python09 = file:/usr/lib/python3.5/encodings/latin_1.py
+sgx.trusted_files.python10 = file:/usr/lib/python3.5/_bootlocale.py
+sgx.trusted_files.python11 = file:/usr/lib/python3.5/site.py
+sgx.trusted_files.python12 = file:/usr/lib/python3.5/os.py
+sgx.trusted_files.python13 = file:/usr/lib/python3.5/stat.py
+sgx.trusted_files.python14 = file:/usr/lib/python3.5/posixpath.py
+sgx.trusted_files.python15 = file:/usr/lib/python3.5/genericpath.py
+sgx.trusted_files.python16 = file:/usr/lib/python3.5/_collections_abc.py
+sgx.trusted_files.python17 = file:/usr/lib/python3.5/_sitebuiltins.py
+sgx.trusted_files.python18 = file:/usr/lib/python3.5/sysconfig.py
+sgx.trusted_files.python19 = file:/usr/lib/python3.5/sitecustomize.py
+sgx.trusted_files.python20 = file:/usr/lib/python3/dist-packages/apport_python_hook.py
+sgx.trusted_files.python21 = file:/usr/lib/python3.5/_sysconfigdata.py
+ sgx.trusted_files.python22 = file:/usr/lib/python3.5/plat-x86_64-linux-gnu/_sysconfigdata_m.py
+
+
+# Python scripts required for dummy-web-server.py
+sgx.trusted_files.pythonhttp01 = file:/usr/lib/python3.5/http/__init__.py
+sgx.trusted_files.pythonhttp02 = file:/usr/lib/python3.5/enum.py
+sgx.trusted_files.pythonhttp03 = file:/usr/lib/python3.5/collections/__init__.py
+sgx.trusted_files.pythonhttp04 = file:/usr/lib/python3.5/operator.py
+sgx.trusted_files.pythonhttp05 = file:/usr/lib/python3.5/keyword.py
+sgx.trusted_files.pythonhttp06 = file:/usr/lib/python3.5/heapq.py
+sgx.trusted_files.pythonhttp07 = file:/usr/lib/python3.5/reprlib.py
+sgx.trusted_files.pythonhttp08 = file:/usr/lib/python3.5/types.py
+sgx.trusted_files.pythonhttp09 = file:/usr/lib/python3.5/functools.py
+sgx.trusted_files.pythonhttp10 = file:/usr/lib/python3.5/weakref.py
+sgx.trusted_files.pythonhttp11 = file:/usr/lib/python3.5/collections/abc.py
+sgx.trusted_files.pythonhttp12 = file:/usr/lib/python3.5/http/server.py
+sgx.trusted_files.pythonhttp13 = file:/usr/lib/python3.5/html/__init__.py
+sgx.trusted_files.pythonhttp14 = file:/usr/lib/python3.5/re.py
+sgx.trusted_files.pythonhttp15 = file:/usr/lib/python3.5/sre_compile.py
+sgx.trusted_files.pythonhttp16 = file:/usr/lib/python3.5/sre_parse.py
+sgx.trusted_files.pythonhttp17 = file:/usr/lib/python3.5/sre_constants.py
+sgx.trusted_files.pythonhttp18 = file:/usr/lib/python3.5/copyreg.py
+sgx.trusted_files.pythonhttp19 = file:/usr/lib/python3.5/html/entities.py
+sgx.trusted_files.pythonhttp20 = file:/usr/lib/python3.5/http/client.py
+sgx.trusted_files.pythonhttp21 = file:/usr/lib/python3.5/email/__init__.py
+sgx.trusted_files.pythonhttp22 = file:/usr/lib/python3.5/email/parser.py
+sgx.trusted_files.pythonhttp23 = file:/usr/lib/python3.5/email/feedparser.py
+sgx.trusted_files.pythonhttp24 = file:/usr/lib/python3.5/email/errors.py
+sgx.trusted_files.pythonhttp25 = file:/usr/lib/python3.5/email/message.py
+sgx.trusted_files.pythonhttp26 = file:/usr/lib/python3.5/uu.py
+sgx.trusted_files.pythonhttp27 = file:/usr/lib/python3.5/quopri.py
+sgx.trusted_files.pythonhttp28 = file:/usr/lib/python3.5/warnings.py
+sgx.trusted_files.pythonhttp29 = file:/usr/lib/python3.5/email/utils.py
+sgx.trusted_files.pythonhttp30 = file:/usr/lib/python3.5/random.py
+sgx.trusted_files.pythonhttp31 = file:/usr/lib/python3.5/hashlib.py
+sgx.trusted_files.pythonhttp32 = file:/usr/lib/python3.5/socket.py
+sgx.trusted_files.pythonhttp33 = file:/usr/lib/python3.5/selectors.py
+sgx.trusted_files.pythonhttp34 = file:/usr/lib/python3.5/datetime.py
+sgx.trusted_files.pythonhttp35 = file:/usr/lib/python3.5/urllib/__init__.py
+sgx.trusted_files.pythonhttp36 = file:/usr/lib/python3.5/urllib/parse.py
+sgx.trusted_files.pythonhttp37 = file:/usr/lib/python3.5/email/_parseaddr.py
+sgx.trusted_files.pythonhttp38 = file:/usr/lib/python3.5/calendar.py
+sgx.trusted_files.pythonhttp39 = file:/usr/lib/python3.5/locale.py
+sgx.trusted_files.pythonhttp40 = file:/usr/lib/python3.5/email/charset.py
+sgx.trusted_files.pythonhttp41 = file:/usr/lib/python3.5/email/base64mime.py
+sgx.trusted_files.pythonhttp42 = file:/usr/lib/python3.5/base64.py
+sgx.trusted_files.pythonhttp43 = file:/usr/lib/python3.5/struct.py
+sgx.trusted_files.pythonhttp44 = file:/usr/lib/python3.5/email/quoprimime.py
+sgx.trusted_files.pythonhttp45 = file:/usr/lib/python3.5/string.py
+sgx.trusted_files.pythonhttp46 = file:/usr/lib/python3.5/email/encoders.py
+sgx.trusted_files.pythonhttp47 = file:/usr/lib/python3.5/email/_policybase.py
+sgx.trusted_files.pythonhttp48 = file:/usr/lib/python3.5/email/header.py
+sgx.trusted_files.pythonhttp49 = file:/usr/lib/python3.5/email/_encoded_words.py
+sgx.trusted_files.pythonhttp50 = file:/usr/lib/python3.5/email/iterators.py
+sgx.trusted_files.pythonhttp51 = file:/usr/lib/python3.5/ssl.py
+sgx.trusted_files.pythonhttp52 = file:/usr/lib/python3.5/ipaddress.py
+sgx.trusted_files.pythonhttp53 = file:/usr/lib/python3.5/textwrap.py
+sgx.trusted_files.pythonhttp54 = file:/usr/lib/python3.5/mimetypes.py
+sgx.trusted_files.pythonhttp55 = file:/usr/lib/python3.5/shutil.py
+sgx.trusted_files.pythonhttp56 = file:/usr/lib/python3.5/fnmatch.py
+sgx.trusted_files.pythonhttp57 = file:/usr/lib/python3.5/tarfile.py
+sgx.trusted_files.pythonhttp58 = file:/usr/lib/python3.5/copy.py
+sgx.trusted_files.pythonhttp59 = file:/usr/lib/python3.5/bz2.py
+sgx.trusted_files.pythonhttp60 = file:/usr/lib/python3.5/_compression.py
+sgx.trusted_files.pythonhttp61 = file:/usr/lib/python3.5/threading.py
+sgx.trusted_files.pythonhttp62 = file:/usr/lib/python3.5/traceback.py
+sgx.trusted_files.pythonhttp63 = file:/usr/lib/python3.5/linecache.py
+sgx.trusted_files.pythonhttp64 = file:/usr/lib/python3.5/tokenize.py
+sgx.trusted_files.pythonhttp65 = file:/usr/lib/python3.5/token.py
+sgx.trusted_files.pythonhttp66 = file:/usr/lib/python3.5/lzma.py
+sgx.trusted_files.pythonhttp67 = file:/usr/lib/python3.5/socketserver.py
+sgx.trusted_files.pythonhttp68 = file:/usr/lib/python3.5/argparse.py
+sgx.trusted_files.pythonhttp69 = file:/usr/lib/python3.5/gettext.py
+sgx.trusted_files.pythonhttp70 = file:/usr/lib/python3/dist-packages/apport/__init__.py
+sgx.trusted_files.pythonhttp71 = file:/usr/lib/python3/dist-packages/apport/report.py
+sgx.trusted_files.pythonhttp72 = file:/usr/lib/python3.5/subprocess.py
+sgx.trusted_files.pythonhttp73 = file:/usr/lib/python3.5/signal.py
+sgx.trusted_files.pythonhttp74 = file:/usr/lib/python3.5/tempfile.py
+sgx.trusted_files.pythonhttp75 = file:/usr/lib/python3.5/glob.py
+sgx.trusted_files.pythonhttp76 = file:/usr/lib/python3.5/imp.py
+sgx.trusted_files.pythonhttp77 = file:/usr/lib/python3.5/importlib/__init__.py
+sgx.trusted_files.pythonhttp78 = file:/usr/lib/python3.5/importlib/machinery.py
+sgx.trusted_files.pythonhttp79 = file:/usr/lib/python3.5/importlib/util.py
+sgx.trusted_files.pythonhttp80 = file:/usr/lib/python3.5/importlib/abc.py
+sgx.trusted_files.pythonhttp81 = file:/usr/lib/python3.5/contextlib.py
+sgx.trusted_files.pythonhttp82 = file:/usr/lib/python3.5/xml/__init__.py
+sgx.trusted_files.pythonhttp83 = file:/usr/lib/python3.5/xml/dom/__init__.py
+sgx.trusted_files.pythonhttp84 = file:/usr/lib/python3.5/xml/dom/domreg.py
+sgx.trusted_files.pythonhttp85 = file:/usr/lib/python3.5/xml/dom/minidom.py
+sgx.trusted_files.pythonhttp86 = file:/usr/lib/python3.5/xml/dom/minicompat.py
+sgx.trusted_files.pythonhttp87 = file:/usr/lib/python3.5/xml/dom/xmlbuilder.py
+sgx.trusted_files.pythonhttp88 = file:/usr/lib/python3.5/xml/dom/NodeFilter.py
+sgx.trusted_files.pythonhttp89 = file:/usr/lib/python3.5/xml/parsers/__init__.py
+sgx.trusted_files.pythonhttp90 = file:/usr/lib/python3.5/xml/parsers/expat.py
+sgx.trusted_files.pythonhttp91 = file:/usr/lib/python3.5/urllib/error.py
+sgx.trusted_files.pythonhttp92 = file:/usr/lib/python3.5/urllib/response.py
+sgx.trusted_files.pythonhttp93 = file:/usr/lib/python3.5/urllib/request.py
+sgx.trusted_files.pythonhttp94 = file:/usr/lib/python3.5/bisect.py
+sgx.trusted_files.pythonhttp95 = file:/usr/lib/python3/dist-packages/problem_report.py
+sgx.trusted_files.pythonhttp96 = file:/usr/lib/python3.5/gzip.py
+sgx.trusted_files.pythonhttp97 = file:/usr/lib/python3.5/email/mime/__init__.py
+sgx.trusted_files.pythonhttp98 = file:/usr/lib/python3.5/email/mime/multipart.py
+sgx.trusted_files.pythonhttp99 = file:/usr/lib/python3.5/email/mime/base.py
+sgx.trusted_files.pythonhttp100 = file:/usr/lib/python3.5/email/mime/text.py
+sgx.trusted_files.pythonhttp101 = file:/usr/lib/python3.5/email/mime/nonmultipart.py
+sgx.trusted_files.pythonhttp102 = file:/usr/lib/python3/dist-packages/apport/fileutils.py
+sgx.trusted_files.pythonhttp103 = file:/usr/lib/python3.5/configparser.py
+sgx.trusted_files.pythonhttp104 = file:/usr/lib/python3/dist-packages/apport/packaging_impl.py
+sgx.trusted_files.pythonhttp105 = file:/usr/lib/python3.5/json/__init__.py
+sgx.trusted_files.pythonhttp106 = file:/usr/lib/python3.5/json/decoder.py
+sgx.trusted_files.pythonhttp107 = file:/usr/lib/python3.5/json/scanner.py
+sgx.trusted_files.pythonhttp108 = file:/usr/lib/python3.5/json/encoder.py
+sgx.trusted_files.pythonhttp109 = file:/usr/lib/python3/dist-packages/apt/__init__.py
+sgx.trusted_files.pythonhttp110 = file:/usr/lib/python3.5/__future__.py
+sgx.trusted_files.pythonhttp111 = file:/usr/lib/python3/dist-packages/apt/package.py
+sgx.trusted_files.pythonhttp112 = file:/usr/lib/python3/dist-packages/apt/progress/__init__.py
+sgx.trusted_files.pythonhttp113 = file:/usr/lib/python3/dist-packages/apt/progress/text.py
+sgx.trusted_files.pythonhttp114 = file:/usr/lib/python3/dist-packages/apt/progress/base.py
+sgx.trusted_files.pythonhttp115 = file:/usr/lib/python3/dist-packages/apt/cache.py
+sgx.trusted_files.pythonhttp116 = file:/usr/lib/python3/dist-packages/apt/cdrom.py
+sgx.trusted_files.pythonhttp117 = file:/usr/lib/python3.5/pickle.py
+sgx.trusted_files.pythonhttp118 = file:/usr/lib/python3.5/_compat_pickle.py
+sgx.trusted_files.pythonhttp119 = file:/usr/lib/python3/dist-packages/apport/packaging.py
+sgx.trusted_files.pythonhttp120 = file:/usr/lib/python3.5/encodings/idna.py
+sgx.trusted_files.pythonhttp121 = file:/usr/lib/python3.5/stringprep.py
+
+# User scripts
+sgx.trusted_files.user01 = file:scripts/benchrun.py
+sgx.trusted_files.user02 = file:scripts/dummy-web-server.py
+sgx.trusted_files.user03 = file:scripts/fibonacci.py
+sgx.trusted_files.user04 = file:scripts/helloworld.py
+sgx.trusted_files.user05 = file:scripts/test-http.py
+
+# Python-required etc files
+sgx.trusted_files.mimetypes = file:/etc/mime.types
+sgx.trusted_files.defapport = file:/etc/default/apport
+
+# Name Service Switch (NSS) and getaddrinfo(3) configuration files
+sgx.allowed_files.nsswitch  = file:/etc/nsswitch.conf
+sgx.allowed_files.ethers    = file:/etc/ethers
+sgx.allowed_files.hosts     = file:/etc/hosts
+sgx.allowed_files.group     = file:/etc/group
+sgx.allowed_files.passwd    = file:/etc/passwd
+sgx.allowed_files.gaiconf   = file:/etc/gai.conf
+sgx.allowed_files.hostconf  = file:/etc/host.conf
+sgx.allowed_files.resolv    = file:/etc/resolv.conf

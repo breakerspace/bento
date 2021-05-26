@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<style type="text/css">
+p {
+  color: black;
+  
+}
+code {
+  font-family: Consolas,"courier new";
+  color: black;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 105%;
+}
+
+pre code {
+  background-color: #eee;
+  border: 1px solid #999;
+  display: block;
+  padding: 20px;
+}
+</style>
+
+
+  <head>
+    <title>Bento</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Herr+Von+Muellerhoff" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="css/animate.css">
+    
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+
+    <link rel="stylesheet" href="css/aos.css">
+
+    <link rel="stylesheet" href="css/ionicons.min.css">
+
+    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="css/jquery.timepicker.css">
+
+    
+    <link rel="stylesheet" href="css/flaticon.css">
+    <link rel="stylesheet" href="css/icomoon.css">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+  <div id="colorlib-page">
+    <a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
+    <aside id="colorlib-aside" role="complementary" class="js-fullheight text-center">
+      <h1 id="colorlib-logo"><a href="index.html"><span class="img" style="background-image: url(images/Bento.jpg);"></span>Bento</a></h1>
+      <nav id="colorlib-main-menu" role="navigation">
+        <ul>
+          <li ><a href="index.html">Introduction</a></li>
+          <li><a href="quickstart.html">Quickstart</a></li>
+          <li class="colorlib-active"><a href="services.html">Tor and Onion Services</a></li>
+          <li><a href="functions.html">Bento Functions</a></li>
+          <li><a href="api.html">Client-side APIs</a></li>
+          <li><a href="interactive_client.html">Interactive Bento Client</a></li>
+          <li><a href="session.html">Sessions</a></li>
+          <li><a href="sgx.html">Run with SGX</a></li>
+          <li><a href="contact.html">Report Issues</a></li>
+        </ul>
+      </nav>
+          </form>
+        </div>
+      </div>
+    </aside> <!-- END COLORLIB-ASIDE -->
+    <div id="colorlib-main">
+      <section class="ftco-section ftco-bread">
+        <div class="container">
+          <div class="row no-gutters slider-text justify-content-center align-items-center">
+            <div class="col-md-8 ftco-animate">
+            	<p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Tor and Onion Services</span></p>
+              <h1 class="bread">Tor and Onion Services</h1>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="ftco-section">
+        <div class="container">
+          <div class="row d-flex">
+            <div class="col-lg-12">
+              <div class="row">
+                <div class="col-md-82">
+                  <h3>What is <a href="https://www.torproject.org">Tor?</a></h3>
+                  <h7> Tor is a peer-to-peer overlay routing system that achieves a particular type of anonymity known as unlinkability: an adversary can identify at most one of a source/destination pair, but not both. Tor achieves unlinkable communication by routing traffic through a circuit: a sequence of overlay hosts known as Tor relays. There are typically three relays in a circuit: an entry node (who communicates with the source), a middle node, and an exit node (who communicates with the destination). The source node is responsible for choosing which Tor relays to include in a circuit, and for constructing the circuit. Tor’s default circuit chooses relays almost uni- formly at random, preferring higher-bandwidth nodes and avoiding choosing multiple nodes from the same subnets.
+
+                  </h7>
+
+                <h3>Install Tor</h3>
+                <code>
+                  
+                	
+			              sudo apt update<br/>
+			              sudo apt install automake gcc libevent-dev libssl-dev asciidoc make zlib1g-dev<br/>
+			              git clone https://github.com/torproject/tor.git<br/>
+			              cd tor<br/>
+			              sh autogen.sh<br/>
+			              sudo ./configure<br/>
+			              sudo make<br/>
+			              sudo make install<br/>
+			              
+			     </code>
+			     <h7>Next, edit the torrc (Tor configuration file). </h7> <br/>
+			      	
+			     <code>
+                     cd /usr/local/etc/tor/<br/>
+			         sudo cp torrc.sample torrc<br/>
+                 </code>
+			        
+
+			      	<h7>To start and stop Tor: </h7>  <br/>
+
+			     <code>
+			              tor<br/>
+			              sudo killall tor<br/>
+			         
+                  
+                </code>
+
+                <h3>What are <a href="https://2019.www.torproject.org/docs/onion-services.html.en">Onion Services?</a></h3>
+                <h7> In addition to connecting to external servers, Tor supports hidden services, which allow users to host services anonymously.
+
+                  </h7>
+
+                  <h3>Create Your Own Onion Service</h3>
+                  <h7>Follow the below-listed instructions to create your own Onion Service. First install Apache and setup a sample website.</h7>  
+
+			      <code>
+			              sudo apt install apache2<br/>
+			              cd /var/www/html<br/>
+			              sudo nano index.html (set-up a sample website here)<br/>
+                  </code>
+			               
+                    
+			      	<h7>Next, edit the torrc file to host a service (located in /usr/local/etc/tor/torrc). Add the following lines to torrc.</h7><br/>
+
+			      		
+			        <code>  
+			              HiddenServiceDir /usr/local/var/lib/tor/hidden_service/<br/>
+			              HiddenServicePort 80 127.0.0.1:80<br/>
+			        </code> 
+
+			         <h7>Then, start Apache and launch Tor. </h7> <br/>
+
+			         <code>
+						  sudo /etc/init.d/apache2 start<br/>
+						  tor<br/>
+				    </code>
+			      	
+			              
+
+			       
+			    <h7>Test the hidden service by accessing the .onion address (stored in <code>/usr/local/var/lib/tor/hidden_service/hostname</code>) through a <a href="https://www.torproject.org/download/">Tor Browser</a>.</h7>
+
+                <h5 style="color: #731768;"> Download the source code from <a href="https://github.com/breakerspace/bento">Github</a></h5>
+                <h5 style="color: #731768;"> Checkout the <a href="https://www.cs.purdue.edu/homes/clg/files/Bento_CCS20.pdf">Bento Poster!</a></h5> 
+                  
+      
+
+    
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div><!-- END COLORLIB-MAIN -->
+  </div><!-- END COLORLIB-PAGE -->
+
+  <!-- loader -->
+  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery-migrate-3.0.1.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.easing.1.3.js"></script>
+  <script src="js/jquery.waypoints.min.js"></script>
+  <script src="js/jquery.stellar.min.js"></script>
+  <script src="js/owl.carousel.min.js"></script>
+  <script src="js/jquery.magnific-popup.min.js"></script>
+  <script src="js/aos.js"></script>
+  <script src="js/jquery.animateNumber.min.js"></script>
+  <script src="js/bootstrap-datepicker.js"></script>
+  <script src="js/jquery.timepicker.min.js"></script>
+  <script src="js/scrollax.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+  <script src="js/google-map.js"></script>
+  <script src="js/main.js"></script>
+    
+  </body>
+</html>

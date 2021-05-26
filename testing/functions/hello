@@ -1,0 +1,4 @@
+def hello():
+	api.send("hello world")
+
+

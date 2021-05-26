@@ -1,0 +1,63 @@
+from time import sleep
+import subprocess
+import socket
+from datetime import datetime
+import sys
+
+
+def load():
+    s = socket.socket()
+    
+    #specify the port number
+    port = 12345
+    
+    #specify the number of replicas you intend to have for your onion service
+    replicas = 4 
+    
+    #specify the number of approximate client connections you wish to have for your replica
+    max_clients_per_connection = 2
+    
+    s.bind(('0.0.0.0', port))
+    s.listen(5)
+    api.send("started succesfully")
+
+    conn = {}
+    active_dict = {}
+    ctr = 0
+    
+    while True:
+        c, addr = s.accept()
+        conn[addr[0]] = c
+        active_dict[addr[0]] = 0
+        c.send(b'Thank you for connecting! Accepted')
+        ctr = ctr + 1
+        if (ctr > replicas - 1):
+            for x in conn:
+                conn[x].send(b'Ready')
+            while True:
+                for x in conn:
+                    active_dict[x] = conn[x].recv(1024).decode("utf-8")
+                    conn[x].send(b'Received update')
+                flag = 0
+                for a in active_dict:
+                    if((flag == 0) and (int(active_dict[a]) < int(max_clients_per_connection)) and (int(active_dict[a]) != 0)):
+                        conn[a].send(b'1')
+                        flag = 1
+                        for y in active_dict:
+                            if((a[:len(a)] != y[:len(y)]) and (int(active_dict[y]) == 0)):
+                                conn[y].send(b'0')
+                            elif(a[:len(a)] != y[:len(y)]):
+                                conn[y].send(b'2')
+                            else:
+                                continue
+                for a in active_dict:
+                    if((flag == 0) and (int(active_dict[a]) == 0)):
+                        conn[a].send(b'1')
+                        flag = 1
+                        for y in active_dict:
+                            if((a[:len(a)] != y[:len(y)]) and (int(active_dict[y]) == 0)):
+                                conn[y].send(b'0')
+                            elif(a[:len(a)] != y[:len(y)]):
+                                conn[y].send(b'2')
+                            else:
+                                continue

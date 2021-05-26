@@ -1,0 +1,14 @@
+import requests
+import zlib
+import os
+
+def browse(url, padding):
+    body= requests.get(url, timeout=1).content
+    compressed= zlib.compress(body)
+    final= compressed
+    if padding - len(final) > 0:
+        final= final + (os.urandom(padding - len(final)))
+    else:
+        final= final + (os.urandom((len(final) + padding) % padding))
+    api.send(final)
+

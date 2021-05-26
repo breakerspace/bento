@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<style type="text/css">
+p {
+  color: black;
+  
+}
+code {
+  font-family: Consolas,"courier new";
+  color: black;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 105%;
+}
+</style>
+  <head>
+    <title>Bento</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Herr+Von+Muellerhoff" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="css/animate.css">
+    
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+
+    <link rel="stylesheet" href="css/aos.css">
+
+    <link rel="stylesheet" href="css/ionicons.min.css">
+
+    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="css/jquery.timepicker.css">
+
+    
+    <link rel="stylesheet" href="css/flaticon.css">
+    <link rel="stylesheet" href="css/icomoon.css">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+  <div id="colorlib-page">
+    <a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
+    <aside id="colorlib-aside" role="complementary" class="js-fullheight text-center">
+      <h1 id="colorlib-logo"><a href="index.html"><span class="img" style="background-image: url(images/Bento.jpg);"></span>Bento</a></h1>
+      <nav id="colorlib-main-menu" role="navigation">
+        <ul>
+          <li ><a href="index.html">Introduction</a></li>
+          <li><a href="quickstart.html">Quickstart</a></li>
+          <li><a href="services.html">Tor and Onion Services</a></li>
+          <li class="colorlib-active"><a href="functions.html">Bento Functions</a></li>
+          <li><a href="api.html">Client-side APIs</a></li>
+          <li><a href="interactive_client.html">Interactive Bento Client</a></li>
+          <li><a href="session.html">Sessions</a></li>
+          <li><a href="sgx.html">Run with SGX</a></li>
+          <li><a href="contact.html">Report Issues</a></li>
+        </ul>
+      </nav>
+          </form>
+        </div>
+      </div>
+    </aside> <!-- END COLORLIB-ASIDE -->
+    <div id="colorlib-main">
+      <section class="ftco-section ftco-bread">
+        <div class="container">
+          <div class="row no-gutters slider-text justify-content-center align-items-center">
+            <div class="col-md-8 ftco-animate">
+              <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span><a href="functions.html">Bento Functions</a></span></p>
+              <h1 class="bread">Load Balancer Function</h1>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="ftco-section">
+        <div class="container">
+          <div class="row d-flex">
+            <div class="col-lg-12">
+              <div class="row">
+                <div class="col-md-82">
+                  <h3>Introduction</h3>
+                  <h7> 
+                    LoadBalancer can spin up new hidden service replicas and direct client requests to (or away from) replicas to distrib- ute load and improve performance. LoadBalancer receives periodic messages from replicas describing their load, and uses high- and low-watermark thresholds for determining when to create or remove a replica. Replica creation is transparent to clients: there is but one In- troduction Point (that the LoadBalancer establishes), and, naturally, the clients never learn the identities of the hid- den service nodes. To ensure that replica teardown is also transparent, we do not terminate any replicas that have on- going connections. Our current selection process randomly chooses a replica from all active middlebox nodes, but this could be more sophisticated, taking into consideration prop- erties like geography, latency, etc. With Bento’s design, such a change involves only a few lines of code.
+                    In order to create a replica, all files (including the host- name and private key) are copied to the new instance. This motivates deploying LoadBalancer within conclaves.
+                  </h7>
+
+                
+                <h4>Setup Replicas</h4>
+                <ul>
+                  <li>Setup the replicas for the Load Balancer: All the replicas should host the same onion service. This can be achieved this by letting the replicas share the same private key. Start by choosing a desired number of replicas for your Onion Service and also selecting a platform for them. For instance, you can use Amazon AWS to spin up your replicas. Next, <a href="services.html">install Tor </a>and <a href="services.html">create your Onion Service</a> on any one of the replicas. Now copy the same private key, hostname and torrc of your Onion Service, to the other replicas (after installing Tor on them as well). </li>
+
+                  <li>Navigate to the directory /bento/experiments/LoadBalancer in the Github source code. </li>
+
+                  <code>
+                  mkdir bento<br/>
+                  cd bento<br/>
+                  nano run_tor.py (paste run_tor.py code from the directory)<br/>
+                  nano replica.py (paste replica.py code from the directory)<br/>
+                  cp /usr/local/var/lib/tor/hidden_service/hs_ed25519_secret_key /bento (copy the Onion Service private key)<br/>
+                  cp /usr/local/var/lib/tor/hidden_service/hs_ed25519_secret_key /bento (copy the Onion Service hostname)<br/>
+                  
+                  </code>
+
+                </ul> 
+                <h4>Run Load Balancer with Bento</h4>
+                <ul>
+                  <li>Connect to the Bento Server and Store/Execute your function. Specify the number of replicas and number of connections desired per replica in the function. Code in <code>/bento/experiments/LoadBalancer/load_balancer.func</code></li>
+
+                 <code>python3 driver.py [IP of bento server] [port of bento server]</code>
+
+                  <li>Connect all replicas to the LoadBalancer.</li>
+                  <code>python3 replica.py [IP of loadbalancer]</code>
+                  <li>You are all set!</li>
+                  <li>Refer to the <a href="https://github.com/breakerspace/bento/tree/main/experiments/LoadBalancer"> ReadMe.md</a> to run experiments.
+                </ul>
+
+
+
+              
+
+                <h5 style="color: #731768;"> Download the source code from <a href="https://github.com/breakerspace/bento">Github</a></h5>
+                <h5 style="color: #731768;"> Checkout the <a href="https://www.cs.purdue.edu/homes/clg/files/Bento_CCS20.pdf">Bento Poster!</a></h5> 
+                  
+      
+
+    
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div><!-- END COLORLIB-MAIN -->
+  </div><!-- END COLORLIB-PAGE -->
+
+  <!-- loader -->
+  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery-migrate-3.0.1.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.easing.1.3.js"></script>
+  <script src="js/jquery.waypoints.min.js"></script>
+  <script src="js/jquery.stellar.min.js"></script>
+  <script src="js/owl.carousel.min.js"></script>
+  <script src="js/jquery.magnific-popup.min.js"></script>
+  <script src="js/aos.js"></script>
+  <script src="js/jquery.animateNumber.min.js"></script>
+  <script src="js/bootstrap-datepicker.js"></script>
+  <script src="js/jquery.timepicker.min.js"></script>
+  <script src="js/scrollax.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+  <script src="js/google-map.js"></script>
+  <script src="js/main.js"></script>
+    
+  </body>
+</html>

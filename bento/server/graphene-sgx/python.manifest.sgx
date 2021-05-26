@@ -1,0 +1,489 @@
+# DO NOT MODIFY. THIS FILE WAS AUTO-GENERATED.
+
+# Python3 manifest example
+#
+# This manifest was prepared and tested on Ubuntu 16.04/18.04 and tested with
+# Python 3.5 and 3.6.
+#
+# Python must be run with the pal_loader:
+#
+# ./pal_loader python.manifest <script>
+
+# The executable to load in Graphene. By default, PYTHONHOME points to the
+# system installation. To run Python from a local installation, specify PYTHONHOME
+# when running `make` in this directory.
+loader.exec = file:/usr/bin/python3.5
+
+# Graphene environment, including the path of the library OS and the debug
+# option (inline/none).
+loader.preload = file:/home/vanilla/sgx/graphene/Runtime/libsysdb.so
+loader.debug_type = none
+
+# Read application arguments directly from the command line. Don't use this on production!
+loader.insecure__use_cmdline_argv = 1
+
+# Environment variables for Python
+loader.env.LD_LIBRARY_PATH = /usr/lib/python3.5/lib:/lib:/lib/x86_64-linux-gnu:/usr/lib:/usr//lib/x86_64-linux-gnu
+loader.env.PATH = /usr/lib/python3.5/bin:/usr/bin:/bin
+loader.env.PYTHONHOME = /usr/lib/python3.5
+loader.env.PYTHONPATH = /usr/lib/python3.5:/usr/lib/python3.5/plat-x86_64-linux-gnu:/usr/lib/python3/dist-packages:/usr/lib/python3.5/lib-dynload
+loader.env.HOME = /home/user
+
+# Mounted FSes. The following "chroot" FSes mount a part of the host FS into the
+# guest. Other parts of the host FS will not be available in the guest.
+
+# Default glibc files, mounted from the Runtime directory in GRAPHENEDIR.
+fs.mount.lib.type = chroot
+fs.mount.lib.path = /lib
+fs.mount.lib.uri = file:/home/vanilla/sgx/graphene/Runtime
+
+# Host-level libraries (e.g., /lib/x86_64-linux-gnu) required by the Python executable
+fs.mount.lib2.type = chroot
+fs.mount.lib2.path = /lib/x86_64-linux-gnu
+fs.mount.lib2.uri = file:/lib/x86_64-linux-gnu
+
+# Host-level directory (/usr) required by the Python executable
+fs.mount.usr.type = chroot
+fs.mount.usr.path = /usr
+fs.mount.usr.uri = file:/usr
+
+# Mount $PYTHONHOME
+fs.mount.pyhome.type = chroot
+fs.mount.pyhome.path = /usr/lib/python3.5
+fs.mount.pyhome.uri = file:/usr/lib/python3.5
+
+# Mount $PYTHONDISTHOME
+fs.mount.pydisthome.type = chroot
+fs.mount.pydisthome.path = /usr/lib/python3/dist-packages
+fs.mount.pydisthome.uri = file:/usr/lib/python3/dist-packages
+
+# Mount /tmp
+fs.mount.tmp.type = chroot
+fs.mount.tmp.path = /tmp
+fs.mount.tmp.uri = file:/tmp
+
+# Mount /etc
+fs.mount.etc.type = chroot
+fs.mount.etc.path = /etc
+fs.mount.etc.uri = file:/etc
+
+# SGX general options
+
+# Set the virtual memory size of the SGX enclave. For SGX v1, the enclave
+# size must be specified during signing. If Python needs more virtual memory
+# than the enclave size, Graphene will not be able to allocate it.
+sgx.enclave_size = 1G
+
+# Set the maximum number of enclave threads. For SGX v1, the number of enclave
+# TCSes must be specified during signing, so the application cannot use more
+# threads than the number of TCSes. Note that Graphene also creates an internal
+# thread for handling inter-process communication (IPC), and potentially another
+# thread for asynchronous events. Therefore, the actual number of threads that
+# the application can create is (sgx.thread_num - 2).
+sgx.thread_num = 8
+
+# SGX trusted libraries
+
+# Glibc libraries
+sgx.trusted_files.ld = file:/home/vanilla/sgx/graphene/Runtime/ld-linux-x86-64.so.2
+sgx.trusted_files.libc = file:/home/vanilla/sgx/graphene/Runtime/libc.so.6
+sgx.trusted_files.libm = file:/home/vanilla/sgx/graphene/Runtime/libm.so.6
+sgx.trusted_files.libdl = file:/home/vanilla/sgx/graphene/Runtime/libdl.so.2
+sgx.trusted_files.librt = file:/home/vanilla/sgx/graphene/Runtime/librt.so.1
+sgx.trusted_files.libutil = file:/home/vanilla/sgx/graphene/Runtime/libutil.so.1
+sgx.trusted_files.libpthread = file:/home/vanilla/sgx/graphene/Runtime/libpthread.so.0
+sgx.trusted_files.libnssdns = file:/home/vanilla/sgx/graphene/Runtime/libnss_dns.so.2
+sgx.trusted_files.libresolve = file:/home/vanilla/sgx/graphene/Runtime/libresolv.so.2
+
+# Other libraries
+sgx.trusted_files.libexpat = file:/lib/x86_64-linux-gnu/libexpat.so.1
+sgx.trusted_files.libnssfiles = file:/lib/x86_64-linux-gnu/libnss_files.so.2
+sgx.trusted_files.libnssmdns4 = file:/lib/x86_64-linux-gnu/libnss_mdns4_minimal.so.2
+sgx.trusted_files.libaptpkg = file:/usr/lib/x86_64-linux-gnu/libapt-pkg.so.5.0
+sgx.trusted_files.libbz2 = file:/lib/x86_64-linux-gnu/libbz2.so.1.0
+sgx.trusted_files.libcrypto = file:/usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0
+sgx.trusted_files.libgcc_s = file:/lib/x86_64-linux-gnu/libgcc_s.so.1
+sgx.trusted_files.libgcrypt = file:/lib/x86_64-linux-gnu/libgcrypt.so.20
+sgx.trusted_files.libgpgerror = file:/lib/x86_64-linux-gnu/libgpg-error.so.0
+sgx.trusted_files.liblz4 = file:/usr/lib/x86_64-linux-gnu/liblz4.so.1
+sgx.trusted_files.liblzma = file:/lib/x86_64-linux-gnu/liblzma.so.5
+sgx.trusted_files.libresolv = file:/lib/x86_64-linux-gnu/libresolv.so.2
+sgx.trusted_files.libssl = file:/usr/lib/x86_64-linux-gnu/libssl.so.1.0.0
+sgx.trusted_files.libstdc = file:/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+sgx.trusted_files.libsystemd = file:/lib/x86_64-linux-gnu/libsystemd.so.0
+sgx.trusted_files.libudev = file:/lib/x86_64-linux-gnu/libudev.so.1
+sgx.trusted_files.libz = file:/lib/x86_64-linux-gnu/libz.so.1
+sgx.trusted_files.libzstd = file:/usr/lib/x86_64-linux-gnu/libzstd.so.1
+sgx.trusted_files.hashlib = file:/usr/lib/python3.5/lib-dynload/_hashlib.cpython-35m-x86_64-linux-gnu.so
+sgx.trusted_files.ctypes = file:/usr/lib/python3.5/lib-dynload/_ctypes.cpython-35m-x86_64-linux-gnu.so
+sgx.trusted_files.ssl = file:/usr/lib/python3.5/lib-dynload/_ssl.cpython-35m-x86_64-linux-gnu.so
+sgx.trusted_files.bz2 = file:/usr/lib/python3.5/lib-dynload/_bz2.cpython-35m-x86_64-linux-gnu.so
+sgx.trusted_files.lzma = file:/usr/lib/python3.5/lib-dynload/_lzma.cpython-35m-x86_64-linux-gnu.so
+sgx.trusted_files.json = file:/usr/lib/python3.5/lib-dynload/_json.cpython-35m-x86_64-linux-gnu.so
+sgx.trusted_files.aptpkg = file:/usr/lib/python3/dist-packages/apt_pkg.cpython-35m-x86_64-linux-gnu.so
+
+
+# Python scripts required for helloworld.py/fibonacci.py
+# NOTE: we ignore precompiled .pyc files since they are for optimization purposes only
+sgx.trusted_files.python01 = file:/usr/lib/python3.5/io.py
+sgx.trusted_files.python02 = file:/usr/lib/python3.5/encodings/__init__.py
+sgx.trusted_files.python03 = file:/usr/lib/python3.5/abc.py
+sgx.trusted_files.python04 = file:/usr/lib/python3.5/codecs.py
+sgx.trusted_files.python05 = file:/usr/lib/python3.5/_weakrefset.py
+sgx.trusted_files.python06 = file:/usr/lib/python3.5/encodings/aliases.py
+sgx.trusted_files.python07 = file:/usr/lib/python3.5/encodings/ascii.py
+sgx.trusted_files.python08 = file:/usr/lib/python3.5/encodings/utf_8.py
+sgx.trusted_files.python09 = file:/usr/lib/python3.5/encodings/latin_1.py
+sgx.trusted_files.python10 = file:/usr/lib/python3.5/_bootlocale.py
+sgx.trusted_files.python11 = file:/usr/lib/python3.5/site.py
+sgx.trusted_files.python12 = file:/usr/lib/python3.5/os.py
+sgx.trusted_files.python13 = file:/usr/lib/python3.5/stat.py
+sgx.trusted_files.python14 = file:/usr/lib/python3.5/posixpath.py
+sgx.trusted_files.python15 = file:/usr/lib/python3.5/genericpath.py
+sgx.trusted_files.python16 = file:/usr/lib/python3.5/_collections_abc.py
+sgx.trusted_files.python17 = file:/usr/lib/python3.5/_sitebuiltins.py
+sgx.trusted_files.python18 = file:/usr/lib/python3.5/sysconfig.py
+sgx.trusted_files.python19 = file:/usr/lib/python3.5/sitecustomize.py
+sgx.trusted_files.python20 = file:/usr/lib/python3/dist-packages/apport_python_hook.py
+sgx.trusted_files.python21 = file:/usr/lib/python3.5/_sysconfigdata.py
+sgx.trusted_files.python22 = file:/usr/lib/python3.5/plat-x86_64-linux-gnu/_sysconfigdata_m.py
+
+
+# Python scripts required for dummy-web-server.py
+sgx.trusted_files.pythonhttp01 = file:/usr/lib/python3.5/http/__init__.py
+sgx.trusted_files.pythonhttp02 = file:/usr/lib/python3.5/enum.py
+sgx.trusted_files.pythonhttp03 = file:/usr/lib/python3.5/collections/__init__.py
+sgx.trusted_files.pythonhttp04 = file:/usr/lib/python3.5/operator.py
+sgx.trusted_files.pythonhttp05 = file:/usr/lib/python3.5/keyword.py
+sgx.trusted_files.pythonhttp06 = file:/usr/lib/python3.5/heapq.py
+sgx.trusted_files.pythonhttp07 = file:/usr/lib/python3.5/reprlib.py
+sgx.trusted_files.pythonhttp08 = file:/usr/lib/python3.5/types.py
+sgx.trusted_files.pythonhttp09 = file:/usr/lib/python3.5/functools.py
+sgx.trusted_files.pythonhttp10 = file:/usr/lib/python3.5/weakref.py
+sgx.trusted_files.pythonhttp11 = file:/usr/lib/python3.5/collections/abc.py
+sgx.trusted_files.pythonhttp12 = file:/usr/lib/python3.5/http/server.py
+sgx.trusted_files.pythonhttp13 = file:/usr/lib/python3.5/html/__init__.py
+sgx.trusted_files.pythonhttp14 = file:/usr/lib/python3.5/re.py
+sgx.trusted_files.pythonhttp15 = file:/usr/lib/python3.5/sre_compile.py
+sgx.trusted_files.pythonhttp16 = file:/usr/lib/python3.5/sre_parse.py
+sgx.trusted_files.pythonhttp17 = file:/usr/lib/python3.5/sre_constants.py
+sgx.trusted_files.pythonhttp18 = file:/usr/lib/python3.5/copyreg.py
+sgx.trusted_files.pythonhttp19 = file:/usr/lib/python3.5/html/entities.py
+sgx.trusted_files.pythonhttp20 = file:/usr/lib/python3.5/http/client.py
+sgx.trusted_files.pythonhttp21 = file:/usr/lib/python3.5/email/__init__.py
+sgx.trusted_files.pythonhttp22 = file:/usr/lib/python3.5/email/parser.py
+sgx.trusted_files.pythonhttp23 = file:/usr/lib/python3.5/email/feedparser.py
+sgx.trusted_files.pythonhttp24 = file:/usr/lib/python3.5/email/errors.py
+sgx.trusted_files.pythonhttp25 = file:/usr/lib/python3.5/email/message.py
+sgx.trusted_files.pythonhttp26 = file:/usr/lib/python3.5/uu.py
+sgx.trusted_files.pythonhttp27 = file:/usr/lib/python3.5/quopri.py
+sgx.trusted_files.pythonhttp28 = file:/usr/lib/python3.5/warnings.py
+sgx.trusted_files.pythonhttp29 = file:/usr/lib/python3.5/email/utils.py
+sgx.trusted_files.pythonhttp30 = file:/usr/lib/python3.5/random.py
+sgx.trusted_files.pythonhttp31 = file:/usr/lib/python3.5/hashlib.py
+sgx.trusted_files.pythonhttp32 = file:/usr/lib/python3.5/socket.py
+sgx.trusted_files.pythonhttp33 = file:/usr/lib/python3.5/selectors.py
+sgx.trusted_files.pythonhttp34 = file:/usr/lib/python3.5/datetime.py
+sgx.trusted_files.pythonhttp35 = file:/usr/lib/python3.5/urllib/__init__.py
+sgx.trusted_files.pythonhttp36 = file:/usr/lib/python3.5/urllib/parse.py
+sgx.trusted_files.pythonhttp37 = file:/usr/lib/python3.5/email/_parseaddr.py
+sgx.trusted_files.pythonhttp38 = file:/usr/lib/python3.5/calendar.py
+sgx.trusted_files.pythonhttp39 = file:/usr/lib/python3.5/locale.py
+sgx.trusted_files.pythonhttp40 = file:/usr/lib/python3.5/email/charset.py
+sgx.trusted_files.pythonhttp41 = file:/usr/lib/python3.5/email/base64mime.py
+sgx.trusted_files.pythonhttp42 = file:/usr/lib/python3.5/base64.py
+sgx.trusted_files.pythonhttp43 = file:/usr/lib/python3.5/struct.py
+sgx.trusted_files.pythonhttp44 = file:/usr/lib/python3.5/email/quoprimime.py
+sgx.trusted_files.pythonhttp45 = file:/usr/lib/python3.5/string.py
+sgx.trusted_files.pythonhttp46 = file:/usr/lib/python3.5/email/encoders.py
+sgx.trusted_files.pythonhttp47 = file:/usr/lib/python3.5/email/_policybase.py
+sgx.trusted_files.pythonhttp48 = file:/usr/lib/python3.5/email/header.py
+sgx.trusted_files.pythonhttp49 = file:/usr/lib/python3.5/email/_encoded_words.py
+sgx.trusted_files.pythonhttp50 = file:/usr/lib/python3.5/email/iterators.py
+sgx.trusted_files.pythonhttp51 = file:/usr/lib/python3.5/ssl.py
+sgx.trusted_files.pythonhttp52 = file:/usr/lib/python3.5/ipaddress.py
+sgx.trusted_files.pythonhttp53 = file:/usr/lib/python3.5/textwrap.py
+sgx.trusted_files.pythonhttp54 = file:/usr/lib/python3.5/mimetypes.py
+sgx.trusted_files.pythonhttp55 = file:/usr/lib/python3.5/shutil.py
+sgx.trusted_files.pythonhttp56 = file:/usr/lib/python3.5/fnmatch.py
+sgx.trusted_files.pythonhttp57 = file:/usr/lib/python3.5/tarfile.py
+sgx.trusted_files.pythonhttp58 = file:/usr/lib/python3.5/copy.py
+sgx.trusted_files.pythonhttp59 = file:/usr/lib/python3.5/bz2.py
+sgx.trusted_files.pythonhttp60 = file:/usr/lib/python3.5/_compression.py
+sgx.trusted_files.pythonhttp61 = file:/usr/lib/python3.5/threading.py
+sgx.trusted_files.pythonhttp62 = file:/usr/lib/python3.5/traceback.py
+sgx.trusted_files.pythonhttp63 = file:/usr/lib/python3.5/linecache.py
+sgx.trusted_files.pythonhttp64 = file:/usr/lib/python3.5/tokenize.py
+sgx.trusted_files.pythonhttp65 = file:/usr/lib/python3.5/token.py
+sgx.trusted_files.pythonhttp66 = file:/usr/lib/python3.5/lzma.py
+sgx.trusted_files.pythonhttp67 = file:/usr/lib/python3.5/socketserver.py
+sgx.trusted_files.pythonhttp68 = file:/usr/lib/python3.5/argparse.py
+sgx.trusted_files.pythonhttp69 = file:/usr/lib/python3.5/gettext.py
+sgx.trusted_files.pythonhttp70 = file:/usr/lib/python3/dist-packages/apport/__init__.py
+sgx.trusted_files.pythonhttp71 = file:/usr/lib/python3/dist-packages/apport/report.py
+sgx.trusted_files.pythonhttp72 = file:/usr/lib/python3.5/subprocess.py
+sgx.trusted_files.pythonhttp73 = file:/usr/lib/python3.5/signal.py
+sgx.trusted_files.pythonhttp74 = file:/usr/lib/python3.5/tempfile.py
+sgx.trusted_files.pythonhttp75 = file:/usr/lib/python3.5/glob.py
+sgx.trusted_files.pythonhttp76 = file:/usr/lib/python3.5/imp.py
+sgx.trusted_files.pythonhttp77 = file:/usr/lib/python3.5/importlib/__init__.py
+sgx.trusted_files.pythonhttp78 = file:/usr/lib/python3.5/importlib/machinery.py
+sgx.trusted_files.pythonhttp79 = file:/usr/lib/python3.5/importlib/util.py
+sgx.trusted_files.pythonhttp80 = file:/usr/lib/python3.5/importlib/abc.py
+sgx.trusted_files.pythonhttp81 = file:/usr/lib/python3.5/contextlib.py
+sgx.trusted_files.pythonhttp82 = file:/usr/lib/python3.5/xml/__init__.py
+sgx.trusted_files.pythonhttp83 = file:/usr/lib/python3.5/xml/dom/__init__.py
+sgx.trusted_files.pythonhttp84 = file:/usr/lib/python3.5/xml/dom/domreg.py
+sgx.trusted_files.pythonhttp85 = file:/usr/lib/python3.5/xml/dom/minidom.py
+sgx.trusted_files.pythonhttp86 = file:/usr/lib/python3.5/xml/dom/minicompat.py
+sgx.trusted_files.pythonhttp87 = file:/usr/lib/python3.5/xml/dom/xmlbuilder.py
+sgx.trusted_files.pythonhttp88 = file:/usr/lib/python3.5/xml/dom/NodeFilter.py
+sgx.trusted_files.pythonhttp89 = file:/usr/lib/python3.5/xml/parsers/__init__.py
+sgx.trusted_files.pythonhttp90 = file:/usr/lib/python3.5/xml/parsers/expat.py
+sgx.trusted_files.pythonhttp91 = file:/usr/lib/python3.5/urllib/error.py
+sgx.trusted_files.pythonhttp92 = file:/usr/lib/python3.5/urllib/response.py
+sgx.trusted_files.pythonhttp93 = file:/usr/lib/python3.5/urllib/request.py
+sgx.trusted_files.pythonhttp94 = file:/usr/lib/python3.5/bisect.py
+sgx.trusted_files.pythonhttp95 = file:/usr/lib/python3/dist-packages/problem_report.py
+sgx.trusted_files.pythonhttp96 = file:/usr/lib/python3.5/gzip.py
+sgx.trusted_files.pythonhttp97 = file:/usr/lib/python3.5/email/mime/__init__.py
+sgx.trusted_files.pythonhttp98 = file:/usr/lib/python3.5/email/mime/multipart.py
+sgx.trusted_files.pythonhttp99 = file:/usr/lib/python3.5/email/mime/base.py
+sgx.trusted_files.pythonhttp100 = file:/usr/lib/python3.5/email/mime/text.py
+sgx.trusted_files.pythonhttp101 = file:/usr/lib/python3.5/email/mime/nonmultipart.py
+sgx.trusted_files.pythonhttp102 = file:/usr/lib/python3/dist-packages/apport/fileutils.py
+sgx.trusted_files.pythonhttp103 = file:/usr/lib/python3.5/configparser.py
+sgx.trusted_files.pythonhttp104 = file:/usr/lib/python3/dist-packages/apport/packaging_impl.py
+sgx.trusted_files.pythonhttp105 = file:/usr/lib/python3.5/json/__init__.py
+sgx.trusted_files.pythonhttp106 = file:/usr/lib/python3.5/json/decoder.py
+sgx.trusted_files.pythonhttp107 = file:/usr/lib/python3.5/json/scanner.py
+sgx.trusted_files.pythonhttp108 = file:/usr/lib/python3.5/json/encoder.py
+sgx.trusted_files.pythonhttp109 = file:/usr/lib/python3/dist-packages/apt/__init__.py
+sgx.trusted_files.pythonhttp110 = file:/usr/lib/python3.5/__future__.py
+sgx.trusted_files.pythonhttp111 = file:/usr/lib/python3/dist-packages/apt/package.py
+sgx.trusted_files.pythonhttp112 = file:/usr/lib/python3/dist-packages/apt/progress/__init__.py
+sgx.trusted_files.pythonhttp113 = file:/usr/lib/python3/dist-packages/apt/progress/text.py
+sgx.trusted_files.pythonhttp114 = file:/usr/lib/python3/dist-packages/apt/progress/base.py
+sgx.trusted_files.pythonhttp115 = file:/usr/lib/python3/dist-packages/apt/cache.py
+sgx.trusted_files.pythonhttp116 = file:/usr/lib/python3/dist-packages/apt/cdrom.py
+sgx.trusted_files.pythonhttp117 = file:/usr/lib/python3.5/pickle.py
+sgx.trusted_files.pythonhttp118 = file:/usr/lib/python3.5/_compat_pickle.py
+sgx.trusted_files.pythonhttp119 = file:/usr/lib/python3/dist-packages/apport/packaging.py
+sgx.trusted_files.pythonhttp120 = file:/usr/lib/python3.5/encodings/idna.py
+sgx.trusted_files.pythonhttp121 = file:/usr/lib/python3.5/stringprep.py
+
+# User scripts
+sgx.trusted_files.user01 = file:scripts/benchrun.py
+sgx.trusted_files.user02 = file:scripts/dummy-web-server.py
+sgx.trusted_files.user03 = file:scripts/fibonacci.py
+sgx.trusted_files.user04 = file:scripts/helloworld.py
+sgx.trusted_files.user05 = file:scripts/test-http.py
+
+# Python-required etc files
+sgx.trusted_files.mimetypes = file:/etc/mime.types
+sgx.trusted_files.defapport = file:/etc/default/apport
+
+# Name Service Switch (NSS) and getaddrinfo(3) configuration files
+sgx.allowed_files.nsswitch = file:/etc/nsswitch.conf
+sgx.allowed_files.ethers = file:/etc/ethers
+sgx.allowed_files.hosts = file:/etc/hosts
+sgx.allowed_files.group = file:/etc/group
+sgx.allowed_files.passwd = file:/etc/passwd
+sgx.allowed_files.gaiconf = file:/etc/gai.conf
+sgx.allowed_files.hostconf = file:/etc/host.conf
+sgx.allowed_files.resolv = file:/etc/resolv.conf
+
+# Generated by Graphene
+
+sgx.allow_file_creation = 0
+sgx.enable_stats = 0
+sgx.isvprodid = 0
+sgx.isvsvn = 0
+sgx.sigfile = file:python.sig
+sgx.static_address = 0
+sgx.trusted_checksum.aptpkg = 3b5f7b52709f32a52099331461f90699c500d5123a9e1457792d1f13bf512044
+sgx.trusted_checksum.bz2 = b4d950c12e7ae66e2b967d2da73401136566f153a00c81a11dffe8f6dc0dd0fd
+sgx.trusted_checksum.ctypes = eddfa978955ceb17841d5ed2b1f90d92ff993460c1802c180380541362d627ea
+sgx.trusted_checksum.defapport = 810304fb0df6dbc8a651a8928ddd0bb2b521fa0ca6f32a328aa103be61977f91
+sgx.trusted_checksum.exec = 6d78f86d5da7d67e5da34e979a0848960eb8e5d1ac5e2b62a6db6553c3ee92c1
+sgx.trusted_checksum.hashlib = 7c2b85a9970adef5d2e4c07d844e6e49b567f552beb4ed98fa34533a5f403a84
+sgx.trusted_checksum.json = 2de480973402a90b8878d77279bf325d026c34e79fba47b63b142053feb2da3e
+sgx.trusted_checksum.ld = ac37cb7165adeb672fa2fe92325483dfc23e6a0a73490b150bcf6fb603b14296
+sgx.trusted_checksum.libaptpkg = 142a465e71f1b52ccfefc44cddf82296af6ff47c731b8ae85ff008df25cd2f3d
+sgx.trusted_checksum.libbz2 = 60955b0bbb05ef2709638573a1bc7d4e022ada79e562f8e2b1db4f108e320f23
+sgx.trusted_checksum.libc = 33e7925a9724c47fafd938bdfc394b0e6e10a9ef133724389b37361fb7097b7d
+sgx.trusted_checksum.libcrypto = 9e0e7d7d9b7b76a8c7486401995e0a85017bda0a8dae2da08844613b45e1b44c
+sgx.trusted_checksum.libdl = 92a7a73cbc535d3b041ba0f010905c0c23c515b499ca05cd82b060165fd4d35e
+sgx.trusted_checksum.libexpat = f15cdbce5b1b9a0032fe1ab4e17eea95601dd8a6404ba20c98a7103e3089676e
+sgx.trusted_checksum.libgcc_s = a4239d53a86a10f98615c450891f50a53cbcc1ad6f82305c873e9c49d343f5bc
+sgx.trusted_checksum.libgcrypt = a23935bcafd6333272b0a20d013f6b36e0e8b8b43a5955f7f161b8e53c93fe91
+sgx.trusted_checksum.libgpgerror = 5d50ffb073142206afbbffdb15e271d34ef579e8df11ba7a621f142a3578b8b8
+sgx.trusted_checksum.liblz4 = 47661e023e491330b8b7e28ff60177b26a7f46cb9f66f2080ab0df1f2cb97b3e
+sgx.trusted_checksum.liblzma = ec4d253f7b56017b2e8662d25eccb4373fe0262df148646851c15001d5447968
+sgx.trusted_checksum.libm = 66ff3b03416c2b56716b3b58b0ceb1b82f5c47151e6ce31921638b7824e10741
+sgx.trusted_checksum.libnssdns = c7151e17eac4cc3265880c41e16180f0b817c0ddd4693bbabc60b3a47ef0b9cb
+sgx.trusted_checksum.libnssfiles = 38d6029b89233409f935dcd32b0561e2ceda8e7fd1aa90d97aa836f6027e999d
+sgx.trusted_checksum.libnssmdns4 = 2a5403e7afe4277f62901de741e52c5d23a1a874a3da733137eed1cffd132945
+sgx.trusted_checksum.libpthread = c49dd521dedd62957afcf969974d08e89f80abbac6b9c922d74ee68fff95aff9
+sgx.trusted_checksum.libresolv = 0ec44049e062355d6096dd617387d127fb1c7494d09afb19be8554abd425ab79
+sgx.trusted_checksum.libresolve = bf0731219fb4a4870ef10a2af05e2dbf0a0a169367a4ab1ceaa5e0445c312dad
+sgx.trusted_checksum.librt = 5f5bd23c2534934e3789ca8d0adbaa68f66884dad7ed2306c772c48086e5acce
+sgx.trusted_checksum.libssl = a67c4bf5515a396def444ad181df45b90df4f872881f69ec9b865a88131f51da
+sgx.trusted_checksum.libstdc = 8036cb3a95f75571d4ff47a0ba7d6aa035a20aa604742c61d394ca6a2150640f
+sgx.trusted_checksum.libsystemd = 9cee57a5cdbb4d72c2626e08e1e625bf6aea46e6cc3c910e22f8bd23a7b9ed84
+sgx.trusted_checksum.libudev = 7b51fe15603d828caf10b68885af869c4164b658eb7aea6df7410db6739b7e90
+sgx.trusted_checksum.libutil = 6c2c24e5f778c0aee7abafc2b7a04754ebfab0603a69ca417266bf60d5e44b3b
+sgx.trusted_checksum.libz = 219c6c0efe93bd6d751bba1e8ae84a162309c665cc5e36beddcf295b72f9bc09
+sgx.trusted_checksum.libzstd = 70ccbc667e32cf4fb66bb7183c32ced9e0df4eec6a9093aae7d2471b7c053b64
+sgx.trusted_checksum.lzma = fbf6065c080fc625f1ece13cd30421cb8450c06b044e8582db1b5a7dd663f44c
+sgx.trusted_checksum.mimetypes = 9193fc0f5b1650538addd3b2a2a6e318773de49babf7ecea446fb4081227d8fc
+sgx.trusted_checksum.preload0 = be2dc26ceefa83112c9d0c69a4007f2fd39745e5829b6a45f43984d3285d0e78
+sgx.trusted_checksum.python01 = cfb51e34dc05bb89abd0f9b3995812987952123827c8edb9fe6bd5e733bcbadf
+sgx.trusted_checksum.python02 = 5db9fa7bc5bb58a8c65889e29d3aebc8c8778b051aefbd25e07e8729215a6f6c
+sgx.trusted_checksum.python03 = fb6c1c3fa040067861b065876d3f63b071197bbb2ab2af1d951e94143354fca8
+sgx.trusted_checksum.python04 = 035550d512fdb0b57af38f6217a99bca98867c4581a058880f314bc6cb24368c
+sgx.trusted_checksum.python05 = 1ef5a903b7dcfedf9cdf7bdc85dbbb466fa934eb6985cf4022e4601b86c234b5
+sgx.trusted_checksum.python06 = c16615ea1e97121dbd2406d97ee57c863176bcdcb945d6f05d452b03838bd534
+sgx.trusted_checksum.python07 = 578aa1173f7cc60dad2895071287fe6182bd14787b3fbf47a6c7983dfe3675e3
+sgx.trusted_checksum.python08 = ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d
+sgx.trusted_checksum.python09 = b75503e532a27c636477396c855209ff5f3036536d2a4bede0a576c89382b60c
+sgx.trusted_checksum.python10 = f9f34905abf0feaf7db40193b6e34d2225ca8924c5b91cb40a1000b3cb03aba4
+sgx.trusted_checksum.python11 = 888b58bd8dfeb62661ceea31e769068863e8bf187b57e162bd78c7757f889ae4
+sgx.trusted_checksum.python12 = 75dd8402c3f712effbcc01d28f7cb0d6ab2f580feddbdf3d52dd1aa4002701fd
+sgx.trusted_checksum.python13 = 35d94a130d4a934af1eea02a58e9701135ce8861893ac3100f038d9398079229
+sgx.trusted_checksum.python14 = 2e3490c351d667586f93ce611f907a3bbe9b7b09f6d0a05d8b3c7c6eadf93fe0
+sgx.trusted_checksum.python15 = 4488395bdcc2618d32968b06a30e540921c2c7c912d6c9bbf942d08bcce284eb
+sgx.trusted_checksum.python16 = 1d99ad6222b2230532f37db4eee2684191b5f1c6429f1e676086f2067b0135df
+sgx.trusted_checksum.python17 = e9d3761e39a049203c19f4c4cd9259f3636f10a2c0f58cea579f0400fa453294
+sgx.trusted_checksum.python18 = ecb1ab65bff4ba6b551f1109b347fac943f9a5523c21620db359b450ea3f6da9
+sgx.trusted_checksum.python19 = 43d81125d92376b1a69d53a71126a041cc9a18d8080e92dea0a2ae23be138b1e
+sgx.trusted_checksum.python20 = 7f56fc0bcfe9e80e8152f32262ec190c4db3b10bf2081c0db73e976285cab69e
+sgx.trusted_checksum.python21 = 4440b8d60e13bc647fd18e423f841bfefcc7679828df1d5a483aa0b4fd8d8bc7
+sgx.trusted_checksum.python22 = 55ad03cb34d9fd416fc0625c0dddad6e78560cf424b5fad0e51bb036b2117c1c
+sgx.trusted_checksum.pythonhttp01 = 272a6739e4c5fd79791e1e1baefb0bfe0a9edb5a53bdadde8c9b7b8741769d76
+sgx.trusted_checksum.pythonhttp02 = b52c8a919669a0200f6869543c4a0276f3e0a20d02df3d3ba8a20a002b3b7b1a
+sgx.trusted_checksum.pythonhttp03 = caa25aae7969a9426574459d1584de071e07c0928aadb2f9dd4a89f2feea5896
+sgx.trusted_checksum.pythonhttp04 = 6c85f65b08d82802967adbebf12036211293eaec7702449310a962c53e94ce05
+sgx.trusted_checksum.pythonhttp05 = 6006cd61d1f8bdb130477e70b1849d7768ddee19f56984bea54d712a4ff6af62
+sgx.trusted_checksum.pythonhttp06 = e4e7381978c763cc8800333f3d62fa34519af7d4ab37d2fbd913146d02d988d9
+sgx.trusted_checksum.pythonhttp07 = a847af1248ddd62ded492a9e06f84260e9cf51c12f78241203542d11abb0484d
+sgx.trusted_checksum.pythonhttp08 = db9cf344f8eabfea57fd1ed6e86d3ef9c78081f376396a729a172e35e50d43fe
+sgx.trusted_checksum.pythonhttp09 = 614fec466d6816452c0bc6db26fab4274b2b7c028bbb90f7e2ed4187d0f8b66b
+sgx.trusted_checksum.pythonhttp10 = 4b4efd51c156e29e63d0a0ba131114238d9059bee9a53efcf4bfdda6f70e282a
+sgx.trusted_checksum.pythonhttp100 = b964aba9b8d0ac6673a1e72bd56dadb7af169adf3cb74e3ae413b90f0127e8af
+sgx.trusted_checksum.pythonhttp101 = 1f6fdedb5ba3e0a698bf33d77e329fc4cf2ab4305474b6ae23c1bc0f99daaf7a
+sgx.trusted_checksum.pythonhttp102 = 4dca4cbcf9afca3485c564269579e879ad1eab9ab5f818e54aaf4d9f1d5193c5
+sgx.trusted_checksum.pythonhttp103 = e96ef9f3063ed0ad64193bef6494cf23bc6e1073013781f8e278de53cc021196
+sgx.trusted_checksum.pythonhttp104 = 82ee05599ec86394c492fc8c90c2dca3ab3a97db9798b14b37b94d9189a0e9df
+sgx.trusted_checksum.pythonhttp105 = f3d8b9de8794ecd36ffc4a786a907e8743fe0961b7b9fcbf400cbfb41de9e776
+sgx.trusted_checksum.pythonhttp106 = 7e123f8b4ec8597070fe2793636edda4ca937adf1e1f12705971e892fbb5c459
+sgx.trusted_checksum.pythonhttp107 = 723b6f210c5d1ca340832b51c8920a8a0fb90ea1920582655bd976d3e5c0b20e
+sgx.trusted_checksum.pythonhttp108 = f92df10b23f6520f82c75dfa65916b1c4c69c8a0cf948cf29f959b6ab15c99e1
+sgx.trusted_checksum.pythonhttp109 = 85a9191b981b83ca3217397a98a110238b4a2bc21f16d43590c11b4ebfafdd7b
+sgx.trusted_checksum.pythonhttp11 = ff7e06408ce45d25e7bc473a9c8bb69b440be429a9d3bec6506b9c0721529d46
+sgx.trusted_checksum.pythonhttp110 = f360476748d35ebb1c55fc3644e46db265449a15cdf388121e826c2baf81382d
+sgx.trusted_checksum.pythonhttp111 = d3a5a6ddce9871675314a17b387507d88c93fec23c0aa2c02d52730898a23d37
+sgx.trusted_checksum.pythonhttp112 = ed97edc572f8acf8d04b73151e8bd1e79a8faf7a286cc74130fc5fcaaadb4d68
+sgx.trusted_checksum.pythonhttp113 = 407f5068f3351c47ad2b2720519b34531adb97da0178aeefe10099ac315a4ce9
+sgx.trusted_checksum.pythonhttp114 = 98b3f81fbd24edd792f43c6fa49da02173ff99d962e3ce8e6fec862e95f47667
+sgx.trusted_checksum.pythonhttp115 = a5dae9e9d878c499406a07f37d3ca2d4ea742e1b46a05c94019f8e5bbde7718a
+sgx.trusted_checksum.pythonhttp116 = 1ea97479b985953283806990a791a7f7e5e4cb60c6b9723e9e606645a39ebae0
+sgx.trusted_checksum.pythonhttp117 = cb3704a057206974af95807e41164094143401b8bc201464c2119958c70fe7b6
+sgx.trusted_checksum.pythonhttp118 = f699771aeb321d58e7cb6420a7b6622c22be59edbc58be1c8999cbafc0f1a9ab
+sgx.trusted_checksum.pythonhttp119 = b295c53d783aa54aa38d0b4e5acd53b5ab2d348247e3207e5903fc18fceb20f4
+sgx.trusted_checksum.pythonhttp12 = 76edd345a981ccbd84e72ca52d7ec237a8a37da14313f87616d20c6cadd680fd
+sgx.trusted_checksum.pythonhttp120 = dcce0dd086f2cccd6198458a39af670291786b3a14c003ba5989817f773a7e84
+sgx.trusted_checksum.pythonhttp121 = 60b6c83581093029312efb6670b11c540090b3f78bcf72264467b494f02f21a5
+sgx.trusted_checksum.pythonhttp13 = 8d69aeb50f77de6d84c51b9d01e08497983bafe9297cdd1620bf75aa1b1dba1c
+sgx.trusted_checksum.pythonhttp14 = 81fc408e0fcb7f28bc8fbdc4aa55a6bd1ee95efaac163bc38a1b88f73cd25cdb
+sgx.trusted_checksum.pythonhttp15 = a5a8d05e891ca678e8e469f639579fa78161b2a83f9136ad4692e6a8daa9bba9
+sgx.trusted_checksum.pythonhttp16 = 4653e30d368d7063d20c7aba98620b18ed6cb1bc1f52369e36e3a1cc80df7ab3
+sgx.trusted_checksum.pythonhttp17 = bf9f1a4b3819db4e3a3bf339056b230919a45a2dbf6b63a02172ab6a3946841d
+sgx.trusted_checksum.pythonhttp18 = 7c9e00df254e4d25e1c8460ae4398256baee50990904175395e07f2c3440ea0b
+sgx.trusted_checksum.pythonhttp19 = fbe69b7c04e3e75eb7b33fefd2d5ad730bff35c4a7b865a8ecfc041075f6f93c
+sgx.trusted_checksum.pythonhttp20 = 6dd327bf595e91fb521c62a8e61272cbebe0f094117a575004519bfc4ca2fbcd
+sgx.trusted_checksum.pythonhttp21 = 14eeb17ae40c6cc19b48a9bd5e2a0340ee3dd86a8d64bd1d5c4df8fcfa726c8a
+sgx.trusted_checksum.pythonhttp22 = 5010aca740bd1671aca4487d334ed298a1ba42c1b8d534e4bc627581cc07073f
+sgx.trusted_checksum.pythonhttp23 = 92921c0dcc304bd8ec530bfdf1cbec4aac11b8700299ec6855f163ccd084521f
+sgx.trusted_checksum.pythonhttp24 = acba92362ccc3d9580990b4fe9f0d285fcca4fceca1bb0b953d52f0f2dfd4f3c
+sgx.trusted_checksum.pythonhttp25 = db46661c2bfee6cee10dcdf0619a675dd011b9fb8f40b3ab76ea129306bc3f36
+sgx.trusted_checksum.pythonhttp26 = 6db7181fb698b186543b331954324b477fe920133d215bebc545c05a4d91000b
+sgx.trusted_checksum.pythonhttp27 = 3c4f062a1452ca8887b2cc2b592fa1b4ec1191d2908863b973ae6a90b30374d5
+sgx.trusted_checksum.pythonhttp28 = 4782ad3c080259f8201d366e44ed393b6a728a6289086515bbe0358c76483868
+sgx.trusted_checksum.pythonhttp29 = bc33b05aea095b4ff6c8dc75d9337597be7610915ea0a358a5b4e13a6daf2dbd
+sgx.trusted_checksum.pythonhttp30 = a3ee5b54dc768caed519d7ddae75998fe42f613c983c62a153006b36bab5f1ff
+sgx.trusted_checksum.pythonhttp31 = ada9bcda3c2fcc3ef23d33a11c45a72010e0dcd1f1de4869cecb0fe227640ed3
+sgx.trusted_checksum.pythonhttp32 = 33c02a8c5fd4adb59a77164b04d5c5c6e904e29821af9feae2eb373201a5c3f2
+sgx.trusted_checksum.pythonhttp33 = 7cbd0a11b58d6c9c233a0cd34c7afb39eae720529184bb7d55a3fda59bcc35bc
+sgx.trusted_checksum.pythonhttp34 = 18c26bebf802fb52dd64efc64d796a7e37807b1af9ff83911a93eda24aae38e5
+sgx.trusted_checksum.pythonhttp35 = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+sgx.trusted_checksum.pythonhttp36 = ec9b20c2599b557df5b84226beedcc3b013f35dcdcc9459a6ad8ce6a826dda2a
+sgx.trusted_checksum.pythonhttp37 = 4ddb953e2b35969fc9d86285a13ed7fdd09c607c306aa5c781d535f4847975f7
+sgx.trusted_checksum.pythonhttp38 = 5c96d7de7f8d793241d85d226bc9d469cf2268448a51f9ead122e5b306d5efb8
+sgx.trusted_checksum.pythonhttp39 = 86453414ee4484b1eb00221d80aa27601fda0e5fd8a1823c9eec0010af501743
+sgx.trusted_checksum.pythonhttp40 = c26d64eac3a675fa035d831851c93624a73490739246c091e5e44101370b4065
+sgx.trusted_checksum.pythonhttp41 = 2712a90f9e7f97861f43718766de25f885412e81135417139a261b9ee3aee753
+sgx.trusted_checksum.pythonhttp42 = 6550d67e337d272d313ae76138acd2a24e4d60f6d8ef63f1c4d96296ef8ea8a3
+sgx.trusted_checksum.pythonhttp43 = 9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856
+sgx.trusted_checksum.pythonhttp44 = bdbae8f8651c15c6707d30452d5e9a2d5d9310c9a56eba216b3ca484550e7c13
+sgx.trusted_checksum.pythonhttp45 = e0bec943531e17de87ff260044e89e5885a425fa66dd0675ecaf7b18af6d09e1
+sgx.trusted_checksum.pythonhttp46 = 1e05b3ee30c62c605077e7770b5b3249f5060d968b0fee8d5cf9cad9450b89cd
+sgx.trusted_checksum.pythonhttp47 = e94851f6eeae72ac6a268f80dc7eb71371e234214335bc750e300035970d76af
+sgx.trusted_checksum.pythonhttp48 = 445d3297ca1b57b00f549c9fd26c2b1de5a2df630eb8f41f9129ef177c5d721c
+sgx.trusted_checksum.pythonhttp49 = 6fdf17583f56c6a3017d706b35da35333d1e13ba01e66a64402e0a66b43b26f9
+sgx.trusted_checksum.pythonhttp50 = 7ebca15c9f5889b9551727303666a7bd80c5e4ebdf6bc7ec4d0c46938a1378e1
+sgx.trusted_checksum.pythonhttp51 = f497617a66d8c1569c7040eeffc642bc66d527e2d708c3facdb54e7ed27727a9
+sgx.trusted_checksum.pythonhttp52 = 816d8121c60e9ae8f76f89112ef80ec404e75297dccd6aa89c1ca0d85edbc197
+sgx.trusted_checksum.pythonhttp53 = 7b066deef231a4af0fdacf1ebd2e49c774e688731fb2747fc7501afde05251e5
+sgx.trusted_checksum.pythonhttp54 = 086a5b748a658c4148cc071bb31a006cb033adda559c04c5ec975e315d2a2694
+sgx.trusted_checksum.pythonhttp55 = dc75b104729c1cd9aeb56407e58245e32b7e0583904b516e32353ff12c47f9a6
+sgx.trusted_checksum.pythonhttp56 = 571a9afb06ad21f3f577ad7ec4192ce86f97affcdb9c7469e64acd850bc2b91d
+sgx.trusted_checksum.pythonhttp57 = 0bc8886fe59a1bda2e99e6787f129fdbbb4aee9008c5cd7a16f4b25257f48fe1
+sgx.trusted_checksum.pythonhttp58 = 158ccce1baf3fb463333da743b9a5505bba457d969fa421768752dc7a745b741
+sgx.trusted_checksum.pythonhttp59 = a8ed835442d241144ce0f0058515399d8ff3ba2229c4eec469d8320183e04859
+sgx.trusted_checksum.pythonhttp60 = 326755377c7b8d98cf71333d62e5b4cb1c4e06519d704961da025f5933dee08d
+sgx.trusted_checksum.pythonhttp61 = 110c5303675f372de17bea6ae183c6f05d1bc2bad428e43696bf0c1ba32046f0
+sgx.trusted_checksum.pythonhttp62 = e92f9af56a41afc2d0ab2459f1f208d1096f42ae34536eb3f1df04b8538a2209
+sgx.trusted_checksum.pythonhttp63 = c654a9e19e83d5f826281f0573223d91a60066c572bc6909bc281fa8557f15ef
+sgx.trusted_checksum.pythonhttp64 = f814db5fbbf6244ac7912ddcce2b6a1f397d0fbb7893c37e9bd51ded31d968fe
+sgx.trusted_checksum.pythonhttp65 = 6f283040bef2cc182636e6a0259fb13615ec932bca70b98fa5b45e92df3f1d61
+sgx.trusted_checksum.pythonhttp66 = ec27e10c2840ef38f754ec96bfbb8b9f9c4beab5e45a8cdc46900176a902cc69
+sgx.trusted_checksum.pythonhttp67 = 1aa60c83d2e4a6c60a254e2b7219fd6d4d7d3a701edfe2dde75077f4d3c52f56
+sgx.trusted_checksum.pythonhttp68 = dea78fd50bd0fdae8129a393281fcc365d7fe9df04097504097ff2e3d2440f17
+sgx.trusted_checksum.pythonhttp69 = 673030ae8f3a2904f731c46f8b95ee292da5f2707a53ab2af596351d11689ab1
+sgx.trusted_checksum.pythonhttp70 = 9a038015e1ed8a0748dda6931afa2bd4fd73b777c4090cd990c04d58de1a2024
+sgx.trusted_checksum.pythonhttp71 = ec26e05092f1c083d956256dbe4ffa55fdc98af1a566c1a051007005c1b20648
+sgx.trusted_checksum.pythonhttp72 = 47daec0b6a6ed7ac7d69eeee09cbb2f8ba25da3f7d4ade4efb6f4151c213dad4
+sgx.trusted_checksum.pythonhttp73 = 7c73fc7d2600ccce041d38cbf4d8270851902c33c17eff26c5a6c6a7572c8184
+sgx.trusted_checksum.pythonhttp74 = 81cce41dff2c27216181c66747670d7d16fc99a365b6ec696076f8c706cd1641
+sgx.trusted_checksum.pythonhttp75 = ee639e3c83f3596142710d3c6e1aeb545e9bf5d63bea5c5a051ab2b44e72b54f
+sgx.trusted_checksum.pythonhttp76 = 98631e807a2e67e603005e34e440fc51bd80ecc6224e00fc1fe725ca3181163d
+sgx.trusted_checksum.pythonhttp77 = 6102960de9edbbfd02babc3a92fe3d04246b2a87f14be83d2e86e2146074e166
+sgx.trusted_checksum.pythonhttp78 = d8675d9b5553ae4ce0a01005bc47a199b9167ef2c4217a4bbda8f457170aae8b
+sgx.trusted_checksum.pythonhttp79 = bb22517769f77b32f8c503bc25d5c4ee7395284026a54598b8805914732a6cc0
+sgx.trusted_checksum.pythonhttp80 = 30267c1926d1604ffc7eef4a4db65dd2f3bf6ea6d06db08dab860ecde1ae0984
+sgx.trusted_checksum.pythonhttp81 = 09089ff2534989e9c1eeadc7b7461033f2843d7fb4ad2a6f4069f497c41016a1
+sgx.trusted_checksum.pythonhttp82 = 34296f728e7fe68cccb97a9f6edbf3bf3a686f44044c744fe85f207a92ed4811
+sgx.trusted_checksum.pythonhttp83 = b415a6f3d3663c3ac332ee4a0f4213eadad9281508dc97410e258a03633b063a
+sgx.trusted_checksum.pythonhttp84 = 7607b7a9ddd5551219a0d5cfa5ebd26c2e8c0912699bd9b9cdb51636aebdda5a
+sgx.trusted_checksum.pythonhttp85 = 6f28d41640238246cb825161f48b1795232a650b5bf9dee34f13f6dfdcb1d8f3
+sgx.trusted_checksum.pythonhttp86 = 42974c4c67803dfe80b016ff8aeea0d1e5c751703ab3aec5be765f4e534367be
+sgx.trusted_checksum.pythonhttp87 = 1b6d65996c230aea45f2280a5501b1ccf93ef0cd8e89b1098ad7e43257574a04
+sgx.trusted_checksum.pythonhttp88 = 9bfacbbb64e239a75591a7260b3ed86748eeb4366e6c40f3542753e79bace9a7
+sgx.trusted_checksum.pythonhttp89 = b88497adc30d5d5eda7789c25a2206ee9270c932d584d7ac42680325651da45c
+sgx.trusted_checksum.pythonhttp90 = 64e1947747c2874117a7458bba1f07c86620cc0ed9a4a4116d262878e4a2aa09
+sgx.trusted_checksum.pythonhttp91 = d0f34d36b5ef0c584f67ed58d96257481e207d6fce46776e79efaab87fcaa00e
+sgx.trusted_checksum.pythonhttp92 = 89abe5ccaa188488e364c23277a2da627e07e1d5b834e403231dea455532a0fa
+sgx.trusted_checksum.pythonhttp93 = 7b89e94385dd725fb4eb5e3c29c7feaf3c447adb41cf11a76c443373cd8ed424
+sgx.trusted_checksum.pythonhttp94 = c743dca30b4809474e1c5e5774922c25bdebfca0fdd3e9888964dfb6fcf5f2ad
+sgx.trusted_checksum.pythonhttp95 = bd2a4fe711649d668ad98bede769598d25c61f220f010e6bb688d06f24cfd396
+sgx.trusted_checksum.pythonhttp96 = 04bb7828198800f1dbc19812598e40457da32708165bad3e335315bcdfcefa9d
+sgx.trusted_checksum.pythonhttp97 = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+sgx.trusted_checksum.pythonhttp98 = 41c094ed453a4ead9a87b40de4fd83cbd899a5bda493bcef26bee2f7dcb6c6a2
+sgx.trusted_checksum.pythonhttp99 = 49f9cd0027827f8ddf534755b98c7fc027e9d11ce32b755d2f943a53d8f8c6d8
+sgx.trusted_checksum.ssl = d56f85f4ddc78e1afc7f13ba1da08d280e36d986324eed6b99a375e8917bf5d4
+sgx.trusted_checksum.user01 = b86481506f2b5c35c207ccf1d33446f0ddec3b4221c043775d729641775aa2fd
+sgx.trusted_checksum.user02 = 92e5d779d311a4f799b52b87d567a106b9ae722301da8b4ad50eac99119d9615
+sgx.trusted_checksum.user03 = 3f80b4f366b6c89bc8403d3baecd6a7b3db95c913b6f4717b9d7af65795d637f
+sgx.trusted_checksum.user04 = 4701fb1b0e43d99792adb5b0c4b9f2e87263d5e32f6be27a4a289b1f4ac34c67
+sgx.trusted_checksum.user05 = 089eac1b1650561187b3640ce316fe693b58544db81b1d9777a82d593a2e0dc5
