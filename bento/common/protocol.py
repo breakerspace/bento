@@ -274,12 +274,12 @@ class SessionMsgErr():
         session_id= self.session_id.encode()
         pkt_len= len(session_id) + len(self.data)
         header= struct.pack(SessionMsg.HeaderFmt, self.type, pkt_len)
-        return header + session_id + self.data
+        return header + session_id + self.data.encode()
 
     @classmethod
     def deserialize(cls, data):
         session_id= data[:session_id_len].decode()
         data= data[session_id_len:]
-        return cls(session_id= session_id, data= data)
+        return cls(session_id= session_id, data= data.decode())
         
     

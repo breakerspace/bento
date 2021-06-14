@@ -21,9 +21,6 @@ class Handler():
         """
         handle session messages until client disconnect or function terminated and no output data left
         """
-        print(self.conn)
-        print(session.read_handle)
-        print(session.function_proc.stderr)
         inputs= [self.conn, session.read_handle, session.function_proc.stderr]
         while True:
             r, w, e= select.select(inputs, [], [])
@@ -39,13 +36,12 @@ class Handler():
                     msg_type, data= self._recv_pkt()
                 except Exception as exc:
                     logging.error(exc)
-                    self._handle_disconnect()
                     return
 
                 if msg_type == Types.Session:
                     if session.function_proc.poll:
                         logging.debug(f"({session.session_id}) function dead")
-                        self._send_pkt(ErrorResponse("function dead", Types.Err))
+                        self._send_pkt(SessionMsgErr(session.session_id, "function dead"))
                     else:
                         datalen= struct.pack("Q", len(data))
                         session.function_proc.stdin.write(datalen + data)
@@ -56,7 +52,7 @@ class Handler():
                     return
 
                 else:
-                    self._send_pkt(ErrorResponse("invalid msg type", Types.Err))
+                    self._send_pkt(SessionMsgErr(session.session_id, "invalid msg type"))
 
             if session.read_handle in r:
                 """
@@ -70,7 +66,7 @@ class Handler():
                 else:
                     if session.function_proc.poll():
                         logging.debug(f"({session.session_id}) function dead")
-                        self._send_pkt(ErrorResponse("function dead", Types.Err))                       
+                        self._send_pkt(SessionMsgErr(session.session_id, Types.Err))                       
                         return
 
             if session.function_proc.stderr in r:
@@ -81,8 +77,13 @@ class Handler():
                 errdata= ""
                 for line in session.function_proc.stderr:
                     errdata+= line
+                
+                if errdata == "":
+                    self._send_pkt(SessionMsgErr(session.session_id, "function dead"))
+                    return
+
                 logging.error(f"({session.session_id}) error data: \n{errdata}")
-                self._send_pkt(ErrorResponse(errdata, Types.Session))
+                self._send_pkt(SessionMsgErr(session.session_id, errdata))
 
 
     def handle_requests(self) -> session_mngr.Session:
@@ -94,7 +95,6 @@ class Handler():
                 req_type, data= self._recv_pkt()
             except Exception as e:
                 logging.error(e)
-                self._handle_disconnect()
                 return None                
 
             if req_type == Types.Store: 
