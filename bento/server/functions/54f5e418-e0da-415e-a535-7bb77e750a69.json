@@ -1,1 +1,0 @@
-{"name": "add", "code": "import time\ndef add(x, y):\n    while True:\n        time.sleep(2)\n        sum= x+y\n        api.send(sum)"}
