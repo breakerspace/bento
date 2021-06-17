@@ -17,7 +17,7 @@ class Handler():
         self.conn= conn
         
 
-    def handle_session(self, session:session_mngr.Session):
+    def handle_communication(self, session:session_mngr.Session):
         """
         handle session messages until client disconnect or function terminated and no output data left
         """
@@ -38,21 +38,21 @@ class Handler():
                     logging.error(exc)
                     return
 
-                if msg_type == Types.Session:
+                if msg_type == MsgTypes.Input:
                     if session.function_proc.poll:
                         logging.debug(f"({session.session_id}) function dead")
-                        self._send_pkt(SessionMsgErr(session.session_id, "function dead"))
+                        self._send_pkt(FunctionErr(session.session_id, "function dead"))
                     else:
                         datalen= struct.pack("Q", len(data))
                         session.function_proc.stdin.write(datalen + data)
                         session.function_proc.stdin.flush()
                         logging.debug(f"({session.session_id}) data written to function")
                 
-                elif msg_type == Types.CloseRequest:
+                elif msg_type == Types.Close:
                     return
 
                 else:
-                    self._send_pkt(SessionMsgErr(session.session_id, "invalid msg type"))
+                    self._send_pkt(FunctionErr(session.session_id, "invalid msg type"))
 
             if session.read_handle in r:
                 """
@@ -62,11 +62,11 @@ class Handler():
                 if len(datalen) == 8:
                     datalen,= struct.unpack("Q", datalen)
                     data= session.read_handle.read(datalen)
-                    self._send_pkt(SessionMsg(session.session_id, data))
+                    self._send_pkt(Output(session.session_id, data))
                 else:
                     if session.function_proc.poll():
                         logging.debug(f"({session.session_id}) function dead")
-                        self._send_pkt(SessionMsgErr(session.session_id, Types.Err))                       
+                        self._send_pkt(FunctionErr(session.session_id, "function dead"))                       
                         return
 
             if session.function_proc.stderr in r:
@@ -79,11 +79,11 @@ class Handler():
                     errdata+= line
                 
                 if errdata == "":
-                    self._send_pkt(SessionMsgErr(session.session_id, "function dead"))
+                    self._send_pkt(FunctionErr(session.session_id, "function dead"))
                     return
 
                 logging.error(f"({session.session_id}) error data: \n{errdata}")
-                self._send_pkt(SessionMsgErr(session.session_id, errdata))
+                self._send_pkt(Error(session.session_id, errdata))
 
 
     def handle_requests(self) -> session_mngr.Session:

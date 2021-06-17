@@ -50,9 +50,9 @@ def main():
 
     logging.debug("Getting output...")
     conn.send_open_request(session_id)
-    data, session_id, err= conn.get_sessionmsg()
+    data, msg_type= conn.recv_output()
     print(zlib.decompress(data))
-    term_msg, session_id, err= conn.get_sessionmsg()
+    term_msg, msg_type= conn.recv_output()
     print(term_msg)
 
 

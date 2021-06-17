@@ -6,20 +6,17 @@ import struct
 import json
 
 
+"""
+============================================================================
+Function setup requests and responses
+============================================================================
+"""
 class Types:
     Store   = 0x0
     Execute = 0x1
     Open    = 0x2
     Close   = 0x3
-    Session = 0x4
-    Err     = 0x5
 
-
-"""
-============================================================================
-Client request definitions
-============================================================================
-"""
 
 class Request:
     """
@@ -95,38 +92,32 @@ class ExecuteRequest(Request):
 
 
 class OpenRequest(Request):
-    def __init__(self, session_id: str):
-        self.session_id= session_id
+    def __init__(self, function_id: str):
+        self.function_id= function_id
 
     def serialize(self):
-        session_id= self.session_id.encode()
-        header= struct.pack(Request.HeaderFmt, Types.Open, len(session_id))
-        return header + session_id
+        function_id= self.function_id.encode()
+        header= struct.pack(Request.HeaderFmt, Types.Open, len(function_id))
+        return header + function_id
     
     @classmethod
     def deserialize(cls, data):
-        return cls(session_id= data.decode())
+        return cls(function_id= data.decode())
 
 
 class CloseRequest(Request):
-    def __init__(self, session_id: str):
-        self.session_id= session_id
+    def __init__(self, function_id: str):
+        self.function_id= function_id
 
     def serialize(self):
-        session_id= self.session_id.encode()
-        header= struct.pack(Request.HeaderFmt, Types.Close, len(session_id))
-        return header + session_id 
+        function_id= self.function_id.encode()
+        header= struct.pack(Request.HeaderFmt, Types.Close, len(function_id))
+        return header + function_id 
 
     @classmethod
     def deserialize(cls, data):
-        return cls(session_id= data.decode())
+        return cls(function_id= data.decode())
 
-
-"""
-============================================================================
-Server response definitions
-============================================================================
-"""
 
 class Response:
     """
@@ -153,8 +144,7 @@ class Response:
         """
         pass
 
-    @classmethod
-    def deserialize(cls, data: bytes):
+    def deserialize(data: bytes):
         """
         deserialize a byte buffer into a Request object
         """
@@ -181,13 +171,13 @@ class StoreResponse(Response):
 
 
 class ExecuteResponse(Response):
-    def __init__(self, session_id):
-        self.session_id= session_id
+    def __init__(self, function_id):
+        self.function_id= function_id
         self.resp_type= Types.Execute
         self.success= True
 
     def serialize(self):
-        bdata= str(self.session_id).encode()
+        bdata= str(self.function_id).encode()
         header= struct.pack(Response.HeaderFmt, 
                             Types.Execute,
                             Response.Success, 
@@ -196,7 +186,7 @@ class ExecuteResponse(Response):
 
     @classmethod
     def deserialize(cls, data):
-        return cls(session_id= data.decode())
+        return cls(function_id= data.decode())
 
 
 class ErrorResponse(Response):
@@ -220,66 +210,86 @@ class ErrorResponse(Response):
 
 """
 ============================================================================
-Open session send/recv packets 
+Function communication messages
 ============================================================================
 """
+class MsgTypes:
+    FunctionErr = 0x4
+    Error       = 0x5
+    Output      = 0x6
+    Input       = 0x7
 
-session_id_len= 36   
+function_id_len= 36   
 
-class SessionMsg():
+class FunctionMessage():
     """
-    represents a session message from either client -> server or client <- server
+    represents messages to and from an executing function and a connected client
     """
     HeaderFmt= '>BI'
     HeaderLen= 5
 
-    def __init__(self, session_id: str, data: bytes):
-        self.session_id= session_id
+    def __init__(self, function_id: str, data):
+        self.function_id= function_id
+        if isinstance(data, str):
+            data= data.encode()
         self.data= data
-        self.type= Types.Session
-    
-    def serialize(self):
-        session_id= self.session_id.encode()
-        pkt_len= len(session_id) + len(self.data)
-        header= struct.pack(SessionMsg.HeaderFmt, self.type, pkt_len)
-        return header + session_id + self.data
+        self.type= None
 
+    def serialize(self):
+        function_id= self.function_id.encode()
+        pkt_len= len(function_id) + len(self.data)
+        header= struct.pack(FunctionMessage.HeaderFmt, self.type, pkt_len)
+        return header + function_id + self.data
+    
     @classmethod
     def deserialize(cls, data):
-        session_id= data[:session_id_len].decode()
-        data= data[session_id_len:]
-        return cls(session_id= session_id, data= data)
+        function_id= data[:function_id_len].decode()
+        data= data[function_id_len:]
+        return cls(function_id= function_id, data= data)
 
     @staticmethod
     def unpack_hdr(packed_hdr):
-        if Request.HeaderLen != len(packed_hdr):
+        if FunctionMessage.HeaderLen != len(packed_hdr):
             return None, None, "header len doesn't match"
 
-        req_type, length= struct.unpack(Request.HeaderFmt, packed_hdr)
+        msg_type, length= struct.unpack(FunctionMessage.HeaderFmt, packed_hdr)
 
-        return req_type, length, None
+        return msg_type, length, None
 
 
-class SessionMsgErr():
+class Error(FunctionMessage):
     """
-    represents an error message in relation to a specific open session id
+    sent from a function as stderr
     """
-    
-    def __init__(self, session_id, data):
-        self.session_id= session_id
-        self.data= data
-        self.type= Types.Err
+    def __init__(self, function_id: str, data: bytes):
+        super().__init__(function_id, data)
+        self.type= MsgTypes.Error
 
-    def serialize(self):
-        session_id= self.session_id.encode()
-        pkt_len= len(session_id) + len(self.data)
-        header= struct.pack(SessionMsg.HeaderFmt, self.type, pkt_len)
-        return header + session_id + self.data.encode()
+   
+class Output(FunctionMessage):
+    """
+    sent from a function as stdout
+    """
+    def __init__(self, function_id: str, data: bytes):
+        super().__init__(function_id, data)
+        self.type= MsgTypes.Output
 
-    @classmethod
-    def deserialize(cls, data):
-        session_id= data[:session_id_len].decode()
-        data= data[session_id_len:]
-        return cls(session_id= session_id, data= data.decode())
-        
-    
+
+class Input(FunctionMessage):
+    """
+    sent to a function as stdin
+    """
+    def __init__(self, function_id: str, data: bytes):
+        super().__init__(function_id, data)
+        self.type= MsgTypes.Input
+
+
+class FunctionErr(FunctionMessage):
+    """
+    sent from server as an error indicating a type of function failure
+    """
+    def __init__(self, function_id: str, data: bytes):
+        super().__init__(function_id, data)
+        self.type= MsgTypes.FunctionErr
+
+      
