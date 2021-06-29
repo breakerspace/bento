@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-import argparse
 import logging
 from select import EPOLLONESHOT
 import socket
-import sys
 import time
 from threading import Thread
 
@@ -12,7 +10,7 @@ import core.config as config
 from core.config import opts
 
 from core.handler import Handler
-import core.session_mngr as session_mngr
+import core.instance_mngr as instance_mngr
 
 logging.basicConfig(format='%(levelname)s:\t%(message)s', level=opts.log_level)
 
@@ -26,53 +24,43 @@ class ClientThread(Thread):
         self.address= address
         self.port= port
         self.conn= conn
-        self.open_session= None
+        self.instance= None
         self.handler= Handler(conn)
 
 
     def run(self):
         while True:
-            self.open_session= self.handler.handle_requests()
-            if self.open_session:
-                self.handler.handle_session(self.open_session)
+            self.instance= self.handler.handle_requests()
+            if self.instance:
+                self.handler.handle_communication(self.instance)
             else:
-                # no session opened - client disconnect
+                # no instance opened - client disconnect
                 self._handle_disconnect()
                 break
 
 
-    def _clean_session(self):
+    def _clean_instance(self):
         """
-        clean up an open session 
+        clean up an instance 
         """
-        if self.open_session:
-            logging.debug(f"({self.open_session.session_id}) cleaning up session")
-            if self.open_session.clean() == False:
-                logging.debug(f"({self.open_session.session_id}) function still running")
+        if self.instance:
+            logging.debug(f"({self.instance.function_id}) cleaning up instance")
+            if self.instance.clean() == False:
+                logging.debug(f"({self.instance.function_id}) function still running")
             else:
-                logging.debug(f"({self.open_session.session_id}) function terminated")
-                session_mngr.destroy(self.open_session.session_id)
-            self.open_session= None
+                logging.debug(f"({self.instance.function_id}) function terminated")
+                instance_mngr.destroy(self.instance.function_id)
+            self.instance= None
 
 
     def _handle_disconnect(self):
         """
-        wait a sec before cleaning the client's open sessions
+        wait a sec before cleaning the client's instance 
         """
-        logging.info(f"client disconnect: {self.address}:{self.port}, cleaning all open sessions")
+        logging.info(f"client disconnect: {self.address}:{self.port}")
         time.sleep(1)
-        self._clean_session()
+        self._clean_instance()
 
-
-def _pr_config():
-    logging.debug("configuration: ")
-    logging.debug(f"  host: {opts.host}")
-    logging.debug(f"  port: {opts.port}")
-    logging.debug(f"  working_dir: {opts.working_dir}")
-    logging.debug(f"  functions_dir: {opts.functions_dir}")
-    logging.debug(f"  sessions_dir: {opts.sessions_dir}")
-    logging.debug(f"  function_cmd: {opts.function_cmd}")
-    logging.debug("  log_level: %s" % logging.getLevelName(opts.log_level))
 
 
 """
@@ -80,6 +68,17 @@ def _pr_config():
 Entry Point
 ============================================================================
 """
+
+def _pr_config():
+    logging.debug("configuration: ")
+    logging.debug(f"  host: {opts.host}")
+    logging.debug(f"  port: {opts.port}")
+    logging.debug(f"  working_dir: {opts.working_dir}")
+    logging.debug(f"  functions_dir: {opts.functions_dir}")
+    logging.debug(f"  instances_dir: {opts.instances_dir}")
+    logging.debug(f"  function_cmd: {opts.function_cmd}")
+    logging.debug("  log_level: %s" % logging.getLevelName(opts.log_level))
+
 
 def __main():
     config.parse_cmdline()
