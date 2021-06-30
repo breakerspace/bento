@@ -78,8 +78,8 @@ class ClientConnection:
 
     def recv_output(self):
         """
-        get output data from an executing function assuming communication with a function is open
-            - could be an error message
+        get output data from an executing function assuming there is a function instance running
+            - return output data and whether data is stderr or stdout, raise exception if server error
         """
         hdr= self._recv_all(FunctionMessage.HeaderLen)
         if hdr is None:
@@ -93,8 +93,17 @@ class ClientConnection:
         if data is None:
             raise Exception('failed to recv response data')
 
-        msg= FunctionMessage.deserialize(data)
-        return msg.data, msg.type
+        if msg_type == MsgTypes.Output:
+            msg= Output.deserialize(data)
+            return msg.data, False
+        elif msg_type == MsgTypes.Error:
+            msg= Error.deserialize(data)
+            return msg.data, True
+        elif msg_type == MsgTypes.FunctionErr:
+            msg= FunctionErr.deserialize(data)
+            raise Exception(f"err from server: {msg.data}")
+        else:
+            raise Exception(f"bad message type from server")
 
        
     def _send_request(self, request):

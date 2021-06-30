@@ -57,7 +57,9 @@ class Instance:
         self.function_id= function_id
         self.function_proc= None
         self.buffout_path= f'{opts.instances_dir}/{function_id}.out'
-        self.read_handle= None
+        self.bufferr_path= f'{opts.instances_dir}/{function_id}.err'
+        readout_handle= None
+        readerr_handle= None
         self.write_handle= None
 
         self._execute(exec_data)
@@ -71,12 +73,15 @@ class Instance:
         cmd= shlex.split(opts.function_cmd)
         cmd.append('driver.py')
         cmd.append(exec_data)
-        
-        with open(self.buffout_path, 'wb') as buffer:
-            self.function_proc= subprocess.Popen(cmd, stdout=buffer, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            self.write_handle= self.function_proc.stdin
-            self.read_handle= open(self.buffout_path, 'rb')
-    
+
+        outbuff= open(self.buffout_path, 'wb')
+        errbuff= open(self.bufferr_path, 'wb')
+        self.function_proc= subprocess.Popen(cmd, stdout=outbuff, stdin=subprocess.PIPE, stderr=errbuff)
+        self.writein_handle= self.function_proc.stdin
+        self.readout_handle= open(self.buffout_path, 'rb')
+        self.readerr_handle= open(self.bufferr_path, 'rb')
+
+
     def clean(self):
         """
         attempt to clean up instance processes and artifacts if function has completed execution

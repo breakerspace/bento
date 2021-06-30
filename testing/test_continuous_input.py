@@ -36,24 +36,23 @@ def main():
     logging.debug(f"got token: {token}")
 
     call= f"{function_name}()"
-    session_id, errmsg= conn.send_execute_request(call, token)
+    function_id, errmsg= conn.send_execute_request(call, token)
     if errmsg is not None:
         util.fatal(f"error message from server: {errmsg}")
 
-    logging.debug(f"got session_id: {session_id}")
+    logging.debug(f"got function_id: {function_id}")
     logging.debug("sending input")
     logging.debug(f"sending open request and attempting to recv output")
 
-    conn.send_open_request(session_id)
+    conn.send_open_request(function_id)
     while True:
         data= input("enter input: ")
-        conn.send_sessionmsg(session_id, data)
-        data, session_id, err= conn.get_sessionmsg()
-        if err:
-            print(data)
-            break
-        else:
-            print(data)
+        conn.send_input(function_id, data)
+        try:
+            data, err= conn.recv_output()
+        except Exception as e:
+            print(e)
+
 
 if __name__ == '__main__':
     main()

@@ -21,7 +21,7 @@ class Handler():
         """
         handle instance messages until client disconnect or function terminated and no output data left
         """
-        inputs= [self.conn, instance.read_handle, instance.function_proc.stderr]
+        inputs= [self.conn, instance.readout_handle, instance.readerr_handle]
         while True:
             r, w, e= select.select(inputs, [], [])
 
@@ -39,7 +39,7 @@ class Handler():
                     return
 
                 if msg_type == MsgTypes.Input:
-                    if instance.function_proc.poll:
+                    if instance.function_proc.poll is not None:
                         logging.debug(f"({instance.function_id}) function dead")
                         self._send_pkt(FunctionErr(instance.function_id, "function dead"))
                     else:
@@ -54,14 +54,14 @@ class Handler():
                 else:
                     self._send_pkt(FunctionErr(instance.function_id, "invalid msg type"))
 
-            if instance.read_handle in r:
+            if instance.readout_handle in r:
                 """
                 parse messages from function output buffer
                 """
-                datalen= instance.read_handle.read(8)
+                datalen= instance.readout_handle.read(8)
                 if len(datalen) == 8:
                     datalen,= struct.unpack("Q", datalen)
-                    data= instance.read_handle.read(datalen)
+                    data= instance.readout_handle.read(datalen)
                     self._send_pkt(Output(instance.function_id, data))
                 else:
                     if instance.function_proc.poll():
@@ -69,13 +69,13 @@ class Handler():
                         self._send_pkt(FunctionErr(instance.function_id, "function dead"))                       
                         return
 
-            if instance.function_proc.stderr in r:
+            if instance.readerr_handle in r:
                 """
                 parse error data from function process
                     - instance isn't over, there could still be data in the function output buffer
                 """
                 errdata= ""
-                for line in instance.function_proc.stderr:
+                for line in instance.readerr_handle:
                     errdata+= line
                 
                 if errdata == "":
@@ -114,9 +114,6 @@ class Handler():
                 if instance:
                     return instance
 
-            elif req_type == Types.Instance:
-                self._send_pkt(ErrorResponse('no instance open', req_type))
-            
             else:
                 self._send_pkt(ErrorResponse('invalid request', req_type))
 

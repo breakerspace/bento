@@ -42,17 +42,17 @@ def main():
 
     url= "http://example.com/?q=ultrasurf"
     call= f"{function_name}('{url}', 5)"
-    session_id, errmsg= conn.send_execute_request(call, token)
+    function_id, errmsg= conn.send_execute_request(call, token)
     if errmsg is not None:
        util.fatal(f"Error message from server {errmsg}")
 
-    logging.debug(f"Got session_id: {session_id}")
-
+    logging.debug(f"Got function_id: {function_id}")
     logging.debug("Getting output...")
-    conn.send_open_request(session_id)
-    data, msg_type= conn.recv_output()
+
+    conn.send_open_request(function_id)
+    data, err= conn.recv_output()
     print(zlib.decompress(data))
-    term_msg, msg_type= conn.recv_output()
+    term_msg, err= conn.recv_output()
     print(term_msg)
 
 
