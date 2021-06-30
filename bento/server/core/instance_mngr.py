@@ -58,8 +58,8 @@ class Instance:
         self.function_proc= None
         self.buffout_path= f'{opts.instances_dir}/{function_id}.out'
         self.bufferr_path= f'{opts.instances_dir}/{function_id}.err'
-        readout_handle= None
-        readerr_handle= None
+        self.readout_handle= None
+        self.readerr_handle= None
         self.write_handle= None
 
         self._execute(exec_data)
