@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import importlib
-import json
 import logging
-import os
 import sys
+import zlib
 
 sys.path.append("..")
 from bento.client.api import ClientConnection
@@ -18,41 +16,35 @@ def main():
             level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(
-            description="Simple echo server function (enter 'stop' to terminate)")
+            description='Fetch the http://example.com/ webpage and pad response with dummy bytes')
     parser.add_argument('host', help="server's IPv4 address (default: 0.0.0.0)", 
             nargs='?', default="0.0.0.0")
     parser.add_argument('port', type=int, help="server's port (default: 8888)",
             nargs='?', default=8888)
     args = parser.parse_args()
 
-    function_name = 'continuousInput'
+    function_name = 'syntaxerr'
     function_code = util.read_file(f"functions/{function_name}")
 
     conn= ClientConnection(args.host, args.port)
+
     token, errmsg= conn.send_store_request(function_name, function_code)
     if errmsg is not None:
-        util.fatal("error message from server: {errmsg}")
+        util.fatal(f"Error message from server {errmsg}")
 
-    logging.debug(f"got token: {token}")
+    logging.debug(f"Got token: {token}")
 
     call= f"{function_name}()"
     function_id, errmsg= conn.send_execute_request(call, token)
     if errmsg is not None:
-        util.fatal(f"error message from server: {errmsg}")
+       util.fatal(f"Error message from server {errmsg}")
 
-    logging.debug(f"got function_id: {function_id}")
-    logging.debug("sending input")
-    logging.debug(f"sending open request and attempting to recv output")
+    logging.debug(f"Got function_id: {function_id}")
+    logging.debug("Getting output...")
 
     conn.send_open_request(function_id)
-    while True:
-        data= input("enter input: ")
-        conn.send_input(function_id, data)
-        try:
-            data, err= conn.recv_output()
-            print(data)
-        except Exception as e:
-            print(e)
+    data, err= conn.recv_output()
+    print(data)
 
 if __name__ == '__main__':
     main()

@@ -9,7 +9,7 @@ class Options:
         self.port = 8888
         self.working_dir = os.path.abspath(os.getcwd())
         self.functions_dir = os.path.join(self.working_dir, 'functions')
-        self.sessions_dir = os.path.join(self.working_dir, 'sessions')
+        self.instances_dir = os.path.join(self.working_dir, 'instances')
         self.function_cmd = 'python3.6'
         self.log_level = logging.DEBUG
 
@@ -51,8 +51,8 @@ def parse_cmdline():
     # test if the user specified the working dir
     if opts.working_dir != args.working_dir:
         opts.working_dir = os.path.abspath(args.working_dir)
-        opts.functions_dir = os.path.join(working_dir, 'functions')
-        opts.sessions_dir = os.path.join(working_dir, 'sessions')
+        opts.functions_dir = os.path.join(opts.working_dir, 'functions')
+        opts.instances_dir = os.path.join(opts.working_dir, 'instances')
 
     # test if the user specified the log level
     if isinstance(args.log_level, str):
@@ -62,4 +62,4 @@ def parse_cmdline():
 def setup():
     os.chdir(opts.working_dir)
     os.makedirs(opts.functions_dir, exist_ok=True)
-    os.makedirs(opts.sessions_dir, exist_ok=True)
+    os.makedirs(opts.instances_dir, exist_ok=True)

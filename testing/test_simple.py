@@ -11,7 +11,7 @@ logging.basicConfig(format='%(levelname)s:\t%(message)s', level=logging.DEBUG)
 sys.path.append("..")
 from bento.client.api import ClientConnection
 from bento.common.protocol import *
-import bento.common.util as util *
+import bento.common.util as util 
 
 @util.timeit
 def __test_basic_loop(conn):
@@ -32,17 +32,19 @@ def loop():
     else:
         logging.debug(f"got token: {token}")
         call= f"loop()"
-        session_id, errmsg= conn.send_execute_request(call, token)
+        function_id, errmsg= conn.send_execute_request(call, token)
         if errmsg is not None:
             logging.error(f"error message from server: {errmsg}")
         else:
-            logging.debug(f"got session_id: {session_id}")
+            logging.debug(f"got function_id: {function_id}")
             logging.debug(f"sending open request and attempting to recv output")
-            conn.send_open_request(session_id)
+            conn.send_open_request(function_id)
             while True:
-                data, session_id, err= conn.get_sessionmsg()
-                print(data)
-                if err:
+                try:
+                    data, err= conn.recv_output()
+                    print(data)
+                except Exception as e:
+                    print(e)
                     break
 
 
@@ -65,26 +67,28 @@ def echo():
     else:
         logging.debug(f"got token: {token}")
         call= f"echo()"
-        session_id, errmsg= conn.send_execute_request(call, token)
+        function_id, errmsg= conn.send_execute_request(call, token)
         if errmsg is not None:
             logging.error(f"error message from server: {errmsg}")
         else:
-            logging.debug(f"got session_id: {session_id}")
+            logging.debug(f"got function_id: {function_id}")
             logging.debug("sending input")
             logging.debug(f"sending open request and attempting to recv output")
-            conn.send_open_request(session_id)
-            conn.send_sessionmsg(session_id, 'hello')
+            conn.send_open_request(function_id)
+            conn.send_input(function_id, 'hello')
             while True:
-                data, session_id, err= conn.get_sessionmsg()
-                print(data)
-                if err:
+                try:
+                    data, err= conn.recv_output()
+                    print(data)
+                except Exception as e:
+                    print(e)
                     break
 
 
 @util.timeit
-def __test_session_open_close(conn):
+def __test_instance_open_close(conn):
     """
-    Test opening, closing and then opening a session while the function is still running
+    Test opening, closing and then opening a instance while the function is still running
     """
     code= """
 import time
@@ -102,27 +106,30 @@ def loop():
     else:
         logging.debug(f"got token: {token}")
         call= "loop()"
-        session_id, errmsg= conn.send_execute_request(call, token)
+        function_id, errmsg= conn.send_execute_request(call, token)
         if errmsg is not None:
             logging.error(f"error message from server: {errmsg}")
         else:
-            logging.debug(f"got session_id: {session_id}")
-            logging.debug(f"opening session: {session_id}")
-            conn.send_open_request(session_id)
-            data, session_id, err= conn.get_sessionmsg()
-            print(data)
-            data, session_id, err= conn.get_sessionmsg()
-            print(data)
-            logging.debug(f"closing session: {session_id}")
-            conn.send_close_request(str(session_id))
-            logging.debug(f"opening session: {session_id}")
-            conn.send_open_request(str(session_id))
-            data, session_id, err= conn.get_sessionmsg()
-            print(data)
-            data, session_id, err= conn.get_sessionmsg()
-            print(data)
-            logging.debug(f"closing session: {session_id}")
-            conn.send_close_request(str(session_id))
+            try:
+                logging.debug(f"got function_id: {function_id}")
+                logging.debug(f"opening instance: {function_id}")
+                conn.send_open_request(function_id)
+                data, err= conn.recv_output()
+                print(data)
+                data, err= conn.recv_output()
+                print(data)
+                logging.debug(f"closing instance: {function_id}")
+                conn.send_close_request(str(function_id))
+                logging.debug(f"opening instance: {function_id}")
+                conn.send_open_request(str(function_id))
+                data, err= conn.recv_output()
+                print(data)
+                data, err= conn.recv_output()
+                print(data)
+                logging.debug(f"closing instance: {function_id}")
+                conn.send_close_request(str(function_id))
+            except Exception as e:
+                print(e)
 
 
 def __main_test_simple():
