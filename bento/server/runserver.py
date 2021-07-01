@@ -41,11 +41,12 @@ class ClientThread(Thread):
 
     def _clean_instance(self):
         """
-        clean up an instance 
+        clean up the client's connection to an instance
+            - the instance may continue to run while no clients are interacting with it 
         """
         if self.instance:
             logging.debug(f"({self.instance.function_id}) cleaning up instance")
-            if self.instance.clean() == False:
+            if not self.instance.clean():
                 logging.debug(f"({self.instance.function_id}) function still running")
             else:
                 logging.debug(f"({self.instance.function_id}) function terminated")

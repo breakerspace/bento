@@ -52,8 +52,6 @@ def main():
     conn.send_open_request(function_id)
     data, err= conn.recv_output()
     print(zlib.decompress(data))
-    term_msg, err= conn.recv_output()
-    print(term_msg)
 
 
 if __name__ == '__main__':

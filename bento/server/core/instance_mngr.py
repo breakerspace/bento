@@ -33,8 +33,9 @@ def create(exec_data):
 def destroy(function_id):
     with __lock:
         if function_id in __instances:
-            __instances[function_id].clean()
-            del __instances[function_id]
+            if not __instances[function_id].clean():
+                __instances[function_id].kill()
+                del __instances[function_id]
 
 
 def get(function_id):
@@ -56,11 +57,11 @@ class Instance:
     def __init__(self, function_id, exec_data):
         self.function_id= function_id
         self.function_proc= None
-        self.buffout_path= f'{opts.instances_dir}/{function_id}.out'
-        self.bufferr_path= f'{opts.instances_dir}/{function_id}.err'
+        self.outbuff_path= f'{opts.instances_dir}/{function_id}.out'
+        self.errbuff_path= f'{opts.instances_dir}/{function_id}.err'
         self.readout_handle= None
         self.readerr_handle= None
-        self.write_handle= None
+        self.writein_handle= None
 
         self._execute(exec_data)
 
@@ -68,19 +69,24 @@ class Instance:
     def _execute(self, exec_data):
         """
         execute the function in a defined environment and open handles to read and write data 
-        process to handle its output
         """
         cmd= shlex.split(opts.function_cmd)
         cmd.append('driver.py')
         cmd.append(exec_data)
 
-        outbuff= open(self.buffout_path, 'wb')
-        errbuff= open(self.bufferr_path, 'wb')
+        outbuff= open(self.outbuff_path, 'wb')
+        errbuff= open(self.errbuff_path, 'wb')
+
         self.function_proc= subprocess.Popen(cmd, stdout=outbuff, stdin=subprocess.PIPE, stderr=errbuff)
         self.writein_handle= self.function_proc.stdin
-        self.readout_handle= open(self.buffout_path, 'rb')
-        self.readerr_handle= open(self.bufferr_path, 'rb')
+        self.readout_handle= open(self.outbuff_path, 'rb')
+        self.readerr_handle= open(self.errbuff_path, 'r')
 
+    def alive(self):
+        """
+        return whether the function is alive
+        """
+        return self.function_proc.poll() is None
 
     def clean(self):
         """
@@ -89,9 +95,11 @@ class Instance:
         """
         if self.function_proc.poll is not None: 
             self.function_proc.wait()
-            if self.read_handle is not None: 
-                self.read_handle.close()
-            # TODO: remove output file (buffout_path)
+            if self.readout_handle:
+                self.readout_handle.close()
+            if self.readerr_handle:
+                self.readerr_handle.close()
+            # TODO: remove output file 
             return True
         else:
             return False

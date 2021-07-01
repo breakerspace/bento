@@ -44,13 +44,14 @@ def main():
     logging.debug("sending open request and getting output")
     conn.send_open_request(session_id)
     while True:
-        from_url, session_id, err= conn.get_sessionmsg()
-        if err:
+        try:
+            from_url, err= conn.recv_output()
+            data, err= conn.recv_output()
+            if from_url.decode() == url:
+                print(data.decode())
+        except Exception as e:
+            print(e)
             break
-        data, session_id, err= conn.get_sessionmsg()
-
-        if from_url.decode() == url:
-            print(data.decode()) 
 
 if __name__ == '__main__':
     main()

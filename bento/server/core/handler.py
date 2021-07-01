@@ -21,9 +21,14 @@ class Handler():
         """
         handle instance messages until client disconnect or function terminated and no output data left
         """
+        logging.debug(f"({instance.function_id}) handling communication")
         inputs= [self.conn, instance.readout_handle, instance.readerr_handle]
-        while True:
+        end_instance= False
+        while not end_instance:
             r, w, e= select.select(inputs, [], [])
+
+            if not instance.alive():
+                end_instance= True
 
             if self.conn in r:
                 """
@@ -32,19 +37,20 @@ class Handler():
                     - close request: instance over, return
                     - invalid: send error to client
                 """
+                logging.debug(f"({instance.function_id}) reading from client")
                 try:
-                    msg_type, data= self._recv_pkt()
+                    msg_type, data= self._recv_msg()
                 except Exception as exc:
                     logging.error(exc)
                     return
 
                 if msg_type == MsgTypes.Input:
-                    if instance.function_proc.poll is not None:
-                        logging.debug(f"({instance.function_id}) function dead")
-                        self._send_pkt(FunctionErr(instance.function_id, "function dead"))
-                    else:
-                        datalen= struct.pack("Q", len(data))
-                        instance.function_proc.stdin.write(datalen + data)
+                    # TODO: check function_id before writing to the instance
+                    msg= Input.deserialize(data)
+                    if instance.alive():
+                        print(msg.data)
+                        datalen= struct.pack("Q", len(msg.data))
+                        instance.function_proc.stdin.write(datalen + msg.data)
                         instance.function_proc.stdin.flush()
                         logging.debug(f"({instance.function_id}) data written to function")
                 
@@ -56,34 +62,30 @@ class Handler():
 
             if instance.readout_handle in r:
                 """
-                parse messages from function output buffer
+                parse messages from function stdout buffer
                 """
                 datalen= instance.readout_handle.read(8)
                 if len(datalen) == 8:
+                    end_instance= False
                     datalen,= struct.unpack("Q", datalen)
+                    print(datalen)
                     data= instance.readout_handle.read(datalen)
                     self._send_pkt(Output(instance.function_id, data))
-                else:
-                    if instance.function_proc.poll():
-                        logging.debug(f"({instance.function_id}) function dead")
-                        self._send_pkt(FunctionErr(instance.function_id, "function dead"))                       
-                        return
 
             if instance.readerr_handle in r:
                 """
-                parse error data from function process
-                    - instance isn't over, there could still be data in the function output buffer
+                parse error data from function stderr buffer
                 """
                 errdata= ""
                 for line in instance.readerr_handle:
                     errdata+= line
                 
-                if errdata == "":
-                    self._send_pkt(FunctionErr(instance.function_id, "function dead"))
-                    return
+                if errdata:
+                    end_instance= False
+                    self._send_pkt(Error(instance.function_id, errdata))
 
-                logging.error(f"({instance.function_id}) error data: \n{errdata}")
-                self._send_pkt(Error(instance.function_id, errdata))
+        logging.debug(f"({instance.function_id}) function dead")
+        self._send_pkt(FunctionErr(instance.function_id, "function dead"))
 
 
     def handle_requests(self) -> instance_mngr.Instance:
@@ -92,7 +94,7 @@ class Handler():
         """
         while True:
             try:
-                req_type, data= self._recv_pkt()
+                req_type, data= self._recv_request()
             except Exception as e:
                 logging.error(e)
                 return None                
@@ -157,20 +159,36 @@ class Handler():
         return instance
 
 
-    def _recv_pkt(self):
+    def _recv_msg(self):
+        hdr= self._recv_all(FunctionMessage.HeaderLen)
+        if not hdr:
+            raise ConnectionError("failed to recv header")
+        
+        msg_type, length, err= FunctionMessage.unpack_hdr(hdr)
+        if err:
+            raise ConnectionError(f"unpacking header failed {err}")
+
+        data= self._recv_all(length)
+        if not data:
+            raise ConnectionError("failed to recv packet data")
+
+        return msg_type, data
+        
+
+    def _recv_request(self):
         """
         recieve a packet, parse the header, return the request type and data
         """
         hdr= self._recv_all(Request.HeaderLen)
-        if hdr is None:
+        if not hdr:
             raise ConnectionError("failed to recv header")
             
         req_type, length, err= Request.unpack_hdr(hdr)
-        if err is not None:
+        if err:
             raise ConnectionError(f"unpacking header failed {err}")
 
         data= self._recv_all(length)
-        if data is None:
+        if not data:
             raise ConnectionError("failed to recv packet data")
 
         return req_type, data

@@ -73,7 +73,7 @@ class ClientConnection:
         if isinstance(data, str):
             data= data.encode()
         msg= Input(function_id, data)
-        return self.conn.send(msg.serialize())
+        return self.conn.sendall(msg.serialize())
 
 
     def recv_output(self):

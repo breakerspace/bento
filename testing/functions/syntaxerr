@@ -1,0 +1,4 @@
+def syntaxerr():
+    printf("wait this isn't C...");
+
+    
