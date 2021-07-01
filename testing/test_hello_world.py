@@ -52,10 +52,7 @@ def main():
 
     conn.send_open_request(function_id)
     data, msg_type= conn.recv_output()
-    print(data.decode())
-    term_msg, msg_type= conn.recv_output()
-    print(term_msg)        
-
+    print(data)
 
 if __name__ == '__main__':
     main()

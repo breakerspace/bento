@@ -48,8 +48,7 @@ class Handler():
                     # TODO: check function_id before writing to the instance
                     msg= Input.deserialize(data)
                     if instance.alive():
-                        print(msg.data)
-                        datalen= struct.pack("Q", len(msg.data))
+                        datalen= struct.pack(">Q", len(msg.data))
                         instance.function_proc.stdin.write(datalen + msg.data)
                         instance.function_proc.stdin.flush()
                         logging.debug(f"({instance.function_id}) data written to function")
@@ -67,8 +66,7 @@ class Handler():
                 datalen= instance.readout_handle.read(8)
                 if len(datalen) == 8:
                     end_instance= False
-                    datalen,= struct.unpack("Q", datalen)
-                    print(datalen)
+                    datalen,= struct.unpack(">Q", datalen)
                     data= instance.readout_handle.read(datalen)
                     self._send_pkt(Output(instance.function_id, data))
 

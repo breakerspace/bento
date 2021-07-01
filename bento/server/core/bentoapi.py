@@ -16,14 +16,12 @@ def send(data):
         - will be picked up by the dedicated exchange process for this function
     """
     if data is not None:
-        datalen= struct.pack("Q", len(data))
+        datalen= struct.pack(">Q", len(data))
         sys.stdout.buffer.write(datalen) 
         if isinstance(data, str):
-            sys.stdout.write(data)
-        else:
-            sys.stdout.buffer.write(data)
+            data= data.encode()
+        sys.stdout.buffer.write(data)
         sys.stdout.buffer.flush()
-        sys.stdout.flush()
         return len(data)
     return 0
         
@@ -33,7 +31,7 @@ def recv():
     recv data from the client through our pipe to the server 
     """
     bdata= sys.stdin.buffer.read(8) 
-    datalen,= struct.unpack("Q", bdata) 
+    datalen,= struct.unpack(">Q", bdata) 
     data= sys.stdin.buffer.read(datalen)
     return data
 
@@ -45,6 +43,3 @@ def poll():
     return sys.stdin.buffer in select.select([sys.stdin.buffer], [], [], 0)[0] 
     
 
-
-# TODO write safe wrapper functions for performing Stem library functionality
-# Stem accesses the tor controller which can view other clients streams/circuits so we want to prevent that type of stuff
