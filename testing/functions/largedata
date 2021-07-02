@@ -1,0 +1,6 @@
+import os
+def largedata():
+    data= bytearray(os.urandom(100000000))
+    sent= api.send(data)
+    api.send(str(sent))
+

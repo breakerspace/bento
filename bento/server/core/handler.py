@@ -68,6 +68,8 @@ class Handler():
                     end_instance= False
                     datalen,= struct.unpack(">Q", datalen)
                     data= instance.readout_handle.read(datalen)
+                    while len(data) < datalen:
+                        data+= instance.readout_handle.read(datalen - len(data))
                     self._send_pkt(Output(instance.function_id, data))
 
             if instance.readerr_handle in r:
