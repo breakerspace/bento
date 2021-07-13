@@ -11,10 +11,8 @@ import core.bentoapi as bentoapi
 
 
 def _write_error(data: str):
-    datalen= struct.pack(">BI", 0x01, len(data))
-    sys.stdout.buffer.write(datalen)
-    data= data.encode()
-    sys.stdout.buffer.write(data)
+    """write serialized error with errorbyte set to stdout"""
+    sys.stdout.buffer.write(bentoapi.StdoutData(data).serialize(0x01))
     sys.stdout.buffer.flush()
 
 

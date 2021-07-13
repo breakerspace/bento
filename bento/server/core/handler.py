@@ -2,9 +2,9 @@ import base64
 import json
 import logging
 from multiprocessing import Process
+from server.core.bentoapi import StdoutData
 import struct
 import select
-from threading import Thread
 import uuid
 
 from . import instance_mngr
@@ -29,7 +29,7 @@ class Handler():
             """push read pointer back to account for unread messages"""
             pos= instance.readout_handle.tell()
             for msg in msg_queue:
-                pos-= (len(msg) + 5)
+                pos-= (len(msg) + StdoutData.HeaderLen)
             instance.readout_handle.seek(pos)
 
         inputs= [self.conn, instance.readout_handle, instance.readerr_handle]
@@ -75,10 +75,10 @@ class Handler():
                     self._send_pkt(FunctionErr(instance.function_id, "invalid msg type"))
 
             if instance.readout_handle in readable:
-                hdr= instance.readout_handle.read(5)
-                if len(hdr) == 5:
+                hdr= instance.readout_handle.read(StdoutData.HeaderLen)
+                if len(hdr) == StdoutData.HeaderLen:
                     end_instance= False
-                    err, datalen= struct.unpack(">BI", hdr)
+                    err, datalen= struct.unpack(StdoutData.HeaderFmt, hdr)
                     data= instance.readout_handle.read(datalen)
                     while len(data) < datalen:
                         data+= instance.readout_handle.read(datalen - len(data))
