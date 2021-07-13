@@ -41,7 +41,7 @@ def send(data):
         - will be picked up by the dedicated exchange process for this function
     """
     if data:
-        sys.stdout.buffer.write(StdoutData(data).serialize())
+        sys.stdout.buffer.write(StdoutData(data).serialize(0x00))
         sys.stdout.buffer.flush()
         return len(data)
     return 0
