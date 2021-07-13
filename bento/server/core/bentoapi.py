@@ -16,7 +16,7 @@ def send(data):
         - will be picked up by the dedicated exchange process for this function
     """
     if data is not None:
-        datalen= struct.pack(">Q", len(data))
+        datalen= struct.pack(">BI", 0x00, len(data))
         sys.stdout.buffer.write(datalen) 
         if isinstance(data, str):
             data= data.encode()
@@ -30,8 +30,8 @@ def recv():
     """
     recv data from the client through our pipe to the server 
     """
-    bdata= sys.stdin.buffer.read(8) 
-    datalen,= struct.unpack(">Q", bdata) 
+    bdata= sys.stdin.buffer.read(4) 
+    datalen,= struct.unpack(">I", bdata) 
     data= sys.stdin.buffer.read(datalen)
     return data
 

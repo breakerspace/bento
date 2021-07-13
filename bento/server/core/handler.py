@@ -22,20 +22,37 @@ class Handler():
         handle instance messages until client disconnect or function terminated and no output data left
         """
         logging.debug(f"({instance.function_id}) handling communication")
+
+        msg_queue= []
+
+        def _handle_disconnect():
+            """push read pointer back to account for unread messages"""
+            pos= instance.readout_handle.tell()
+            for msg in msg_queue:
+                pos-= (len(msg) + 5)
+            instance.readout_handle.seek(pos)
+
         inputs= [self.conn, instance.readout_handle, instance.readerr_handle]
+        outputs= [self.conn]
         end_instance= False
+        
         while not end_instance:
-            r, w, e= select.select(inputs, [], [])
+            try:
+                readable, writeable, in_error= select.select(inputs, outputs, [])
+            except select.error as e:
+                _handle_disconnect()
 
             if not instance.alive():
                 end_instance= True
 
-            if self.conn in r:
+            if self.conn in writeable:
+                if msg_queue:
+                    msg= msg_queue.pop(0)
+                    self._send_pkt(msg)
+
+            if self.conn in readable:
                 """
                 parse messages from client: 
-                    - instance msg: send data to function
-                    - close request: instance over, return
-                    - invalid: send error to client
                 """
                 logging.debug(f"({instance.function_id}) reading from client")
                 try:
@@ -48,33 +65,37 @@ class Handler():
                     # TODO: check function_id before writing to the instance
                     msg= Input.deserialize(data)
                     if instance.alive():
-                        datalen= struct.pack(">Q", len(msg.data))
+                        datalen= struct.pack(">I", len(msg.data))
                         instance.function_proc.stdin.write(datalen + msg.data)
                         instance.function_proc.stdin.flush()
                         logging.debug(f"({instance.function_id}) data written to function")
                 
                 elif msg_type == Types.Close:
+                    _handle_disconnect()
                     return
 
                 else:
                     self._send_pkt(FunctionErr(instance.function_id, "invalid msg type"))
 
-            if instance.readout_handle in r:
+            if instance.readout_handle in readable:
                 """
                 parse messages from function stdout buffer
                 """
-                datalen= instance.readout_handle.read(8)
-                if len(datalen) == 8:
+                hdr= instance.readout_handle.read(5)
+                if len(hdr) == 5:
                     end_instance= False
-                    datalen,= struct.unpack(">Q", datalen)
+                    err, datalen= struct.unpack(">BI", hdr)
                     data= instance.readout_handle.read(datalen)
                     while len(data) < datalen:
                         data+= instance.readout_handle.read(datalen - len(data))
-                    self._send_pkt(Output(instance.function_id, data))
+                    if err:
+                        msg_queue.append(Error(instance.function_id, data))
+                    else:
+                        msg_queue.append(Output(instance.function_id, data))
 
-            if instance.readerr_handle in r:
+            if instance.readerr_handle in readable:
                 """
-                parse error data from function stderr buffer
+                parse error data from execution broker
                 """
                 errdata= ""
                 for line in instance.readerr_handle:
@@ -82,7 +103,7 @@ class Handler():
                 
                 if errdata:
                     end_instance= False
-                    self._send_pkt(Error(instance.function_id, errdata))
+                    logging.error(f"({instance.function_id}) Execution error:\n {errdata}")
 
         logging.debug(f"({instance.function_id}) function dead")
         self._send_pkt(FunctionErr(instance.function_id, "function dead"))
