@@ -51,9 +51,6 @@ class Handler():
                     self._send_pkt(msg)
 
             if self.conn in readable:
-                """
-                parse messages from client: 
-                """
                 logging.debug(f"({instance.function_id}) reading from client")
                 try:
                     msg_type, data= self._recv_msg()
@@ -78,9 +75,6 @@ class Handler():
                     self._send_pkt(FunctionErr(instance.function_id, "invalid msg type"))
 
             if instance.readout_handle in readable:
-                """
-                parse messages from function stdout buffer
-                """
                 hdr= instance.readout_handle.read(5)
                 if len(hdr) == 5:
                     end_instance= False
@@ -94,9 +88,6 @@ class Handler():
                         msg_queue.append(Output(instance.function_id, data))
 
             if instance.readerr_handle in readable:
-                """
-                parse error data from execution broker
-                """
                 errdata= ""
                 for line in instance.readerr_handle:
                     errdata+= line
@@ -142,20 +133,12 @@ class Handler():
 
 
     def _handle_store_request(self, request: StoreRequest):
-        """
-        generate a token, write the function info to disk, and then send the
-        token back to the client
-        """
         token= str(uuid.uuid4())
         function.create_function(token, request.name, request.code)
         self._send_pkt(StoreResponse(token))
 
 
     def _handle_execute_request(self, request: ExecuteRequest):
-        """
-        initiate a new instance and start executing the function corresponding
-        to the request token
-        """
         function_data= function.get_function(request.token)
         
         if function_data is not None:
@@ -168,10 +151,6 @@ class Handler():
 
     
     def _handle_open_request(self, request: OpenRequest):
-        """
-        start a worker process to begin reading output from the function
-        corresponding to the requested instance
-        """
         instance= instance_mngr.get(request.function_id)
         if instance is None:
             self._send_pkt(ErrorResponse(f"no instance exists with id: {request.function_id}", Types.Open))
@@ -197,9 +176,6 @@ class Handler():
         
 
     def _recv_request(self):
-        """
-        recieve a packet, parse the header, return the request type and data
-        """
         hdr= self._recv_all(Request.HeaderLen)
         if not hdr:
             raise ConnectionError("failed to recv header")
@@ -216,16 +192,10 @@ class Handler():
 
 
     def _send_pkt(self, response: Response):
-        """
-        send a packet
-        """
         self.conn.sendall(response.serialize())
 
 
     def _recv_all(self, n):
-        """
-        simple recv() wrapper
-        """
         data = bytearray()
         while len(data) < n:
             packet = self.conn.recv(n - len(data))

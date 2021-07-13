@@ -82,11 +82,10 @@ class Instance:
         self.readout_handle= open(self.outbuff_path, 'rb')
         self.readerr_handle= open(self.errbuff_path, 'r')
 
+
     def alive(self):
-        """
-        return whether the function is alive
-        """
         return self.function_proc.poll() is None
+
 
     def clean(self):
         """
@@ -106,9 +105,6 @@ class Instance:
 
         
     def kill(self):
-        """
-        forcefully kill processes and cleanup
-        """
         if self.function_proc.poll is None: 
             logging.info(f"({self.function_id}) killing instance")
             self.function_proc.kill()
