@@ -10,6 +10,9 @@ import select
 
 
 class StdoutData:
+    """
+    data from function stdout: [err][len][data]
+    """
     HeaderLen= 5
     HeaderFmt= ">BI"
 
@@ -24,6 +27,9 @@ class StdoutData:
 
 
 class StdinData:
+    """
+    data to function stdin: [len][data]
+    """
     HeaderLen= 4
     HeaderFmt= ">I"
 

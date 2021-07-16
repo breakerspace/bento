@@ -133,12 +133,18 @@ class Handler():
 
 
     def _handle_store_request(self, request: StoreRequest):
+        """
+        generate a unique id and store the funciton code and name
+        """
         token= str(uuid.uuid4())
         function.create_function(token, request.name, request.code)
         self._send_pkt(StoreResponse(token))
 
 
     def _handle_execute_request(self, request: ExecuteRequest):
+        """
+        get the function data and start an instance
+        """
         function_data= function.get_function(request.token)
         
         if function_data is not None:
@@ -151,6 +157,9 @@ class Handler():
 
     
     def _handle_open_request(self, request: OpenRequest):
+        """
+        get and return the instance requested
+        """
         instance= instance_mngr.get(request.function_id)
         if instance is None:
             self._send_pkt(ErrorResponse(f"no instance exists with id: {request.function_id}", Types.Open))
@@ -160,6 +169,9 @@ class Handler():
 
 
     def _recv_msg(self):
+        """
+        recv a message from client to function
+        """
         hdr= self._recv_all(FunctionMessage.HeaderLen)
         if not hdr:
             raise ConnectionError("failed to recv header")
@@ -176,6 +188,9 @@ class Handler():
         
 
     def _recv_request(self):
+        """
+        recv a request from client to server
+        """
         hdr= self._recv_all(Request.HeaderLen)
         if not hdr:
             raise ConnectionError("failed to recv header")
@@ -192,10 +207,16 @@ class Handler():
 
 
     def _send_pkt(self, response: Response):
+        """
+        send wrapper
+        """
         self.conn.sendall(response.serialize())
 
 
     def _recv_all(self, n):
+        """
+        recv wrapper
+        """
         data = bytearray()
         while len(data) < n:
             packet = self.conn.recv(n - len(data))

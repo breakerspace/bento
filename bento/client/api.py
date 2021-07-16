@@ -107,6 +107,9 @@ class ClientConnection:
 
        
     def _send_request(self, request):
+        """
+        send wrapper
+        """
         self.conn.sendall(request.serialize())
 
 
@@ -136,6 +139,9 @@ class ClientConnection:
         
 
     def _recv_all(self, n):
+        """
+        recv wrapper
+        """
         data = bytearray()
         while len(data) < n:
             packet= self.conn.recv(n - len(data))

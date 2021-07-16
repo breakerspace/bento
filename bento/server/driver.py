@@ -2,7 +2,6 @@
 Executed in an execution broker spawned by server
 """
 
-import struct
 import json
 import base64
 import sys
@@ -17,9 +16,7 @@ def _write_error(data: str):
 
 
 def _execute(code, call):
-    """
-    load the function's context and then execute it
-    """
+    """load the function's context and then execute it"""
     context = dict(locals(), **globals())
     context['api']= bentoapi
     byte_code= compile(code, '<inline>', 'exec')
@@ -31,9 +28,7 @@ def _execute(code, call):
 
 
 def _main():
-    """
-    parse function code and call from argument and execute
-    """
+    """parse function code and call from argument and execute"""
     todo= sys.argv[1]
 
     exec_data= json.loads(base64.urlsafe_b64decode(todo.encode()).decode())
@@ -47,4 +42,5 @@ def _main():
         bentoapi.send(retval) 
 
 
-_main()
+if __name__ == "__main__":
+    _main()
