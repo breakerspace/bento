@@ -2,13 +2,13 @@ import base64
 import json
 import logging
 from multiprocessing import Process
-from server.core.bentoapi import StdoutData
 import struct
 import select
 import uuid
 
 from . import instance_mngr
 from . import function 
+from .bentoapi import StdoutData
 from common.protocol import *
 
 
