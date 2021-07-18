@@ -92,7 +92,7 @@ code {
                 <ul>
 			<li>Install <a href="https://github.com/intel/linux-sgx-driver">SGX driver</a> and <a href="https://github.com/intel/linux-sgx/tree/sgx_2.10_reproducible">SGX SDK & PSW</a>.</li>
             	<li>Install <a href="https://github.com/oscarlab/graphene/tree/165e932144e9e8486b06be354ab26e0a34dc1200">Graphene</a>.</li>
-            	<li>Run Bento Server with SGX: In order to run Bento Server with SGX, use the command <code>python3.6 runserver.py --sgx [true]</code>. The <code>--sgx</code> parameter is set as <code>false</code> by default. 
+            	<li>Run Bento Server with SGX: In order to run Bento Server with SGX, use the command <code>./runserver.py -c 'graphene-sgx/pal_loader graphene-sgx/manifest'</code>. The <code>--sgx</code> parameter is set as <code>false</code> by default. 
 		</li>
             	
             	</ul>
