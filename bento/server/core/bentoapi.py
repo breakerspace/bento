@@ -6,8 +6,39 @@ this file defines the bento api that is exposed to functions executed by clients
 
 import struct
 import sys
-import base64
 import select
+
+
+class StdoutData:
+    """
+    data from function stdout: [err][len][data]
+    """
+    HeaderLen= 5
+    HeaderFmt= ">BI"
+
+    def __init__(self, data):
+        if isinstance(data, str):
+            data= data.encode()
+        self.data= data
+    
+    def serialize(self, errbyte):
+        hdr= struct.pack(StdoutData.HeaderFmt, errbyte, len(self.data))
+        return hdr + self.data
+
+
+class StdinData:
+    """
+    data to function stdin: [len][data]
+    """
+    HeaderLen= 4
+    HeaderFmt= ">I"
+
+    def __init__(self, data):
+        self.data= data
+    
+    def serialize(self):
+        hdr= struct.pack(StdinData.HeaderFmt, len(self.data))
+        return hdr + self.data
 
 
 def send(data):
@@ -15,12 +46,8 @@ def send(data):
     pack data len, append the actual data, and send to server
         - will be picked up by the dedicated exchange process for this function
     """
-    if data is not None:
-        datalen= struct.pack(">Q", len(data))
-        sys.stdout.buffer.write(datalen) 
-        if isinstance(data, str):
-            data= data.encode()
-        sys.stdout.buffer.write(data)
+    if data:
+        sys.stdout.buffer.write(StdoutData(data).serialize(0x00))
         sys.stdout.buffer.flush()
         return len(data)
     return 0
@@ -30,8 +57,8 @@ def recv():
     """
     recv data from the client through our pipe to the server 
     """
-    bdata= sys.stdin.buffer.read(8) 
-    datalen,= struct.unpack(">Q", bdata) 
+    data= sys.stdin.buffer.read(StdinData.HeaderLen)
+    datalen,= struct.unpack(StdinData.HeaderFmt, data) 
     data= sys.stdin.buffer.read(datalen)
     return data
 

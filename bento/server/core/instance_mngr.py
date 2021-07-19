@@ -23,6 +23,9 @@ __lock= Lock()
 
 
 def create(exec_data):
+    """
+    generate a unique id and store the instance data in instance map
+    """
     with __lock:
         function_id= str(uuid.uuid4())
         new_instance= Instance(function_id, exec_data)
@@ -31,6 +34,9 @@ def create(exec_data):
 
 
 def destroy(function_id):
+    """
+    ensure the function process ends and delete the instance from instance map
+    """
     with __lock:
         if function_id in __instances:
             if not __instances[function_id].clean():
@@ -39,6 +45,9 @@ def destroy(function_id):
 
 
 def get(function_id):
+    """
+    return instance from instance map corresponding to the function_id
+    """
     with __lock:
         if function_id in __instances:
             return __instances[function_id]
@@ -82,11 +91,13 @@ class Instance:
         self.readout_handle= open(self.outbuff_path, 'rb')
         self.readerr_handle= open(self.errbuff_path, 'r')
 
+
     def alive(self):
         """
-        return whether the function is alive
+        return whether function process alive
         """
         return self.function_proc.poll() is None
+
 
     def clean(self):
         """
@@ -107,7 +118,7 @@ class Instance:
         
     def kill(self):
         """
-        forcefully kill processes and cleanup
+        force kill the function process and cleanup
         """
         if self.function_proc.poll is None: 
             logging.info(f"({self.function_id}) killing instance")
